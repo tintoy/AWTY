@@ -9,12 +9,8 @@ namespace AWTY
     ///     The type of value used to represent progress.
     /// </typeparam>
     public interface IProgressSink<TValue>
+        where TValue : IComparable<TValue>
     {
-        /// <summary>
-        ///     The percentage of completion represented by the progress value.
-        /// </summary>
-        int PercentComplete { get; }
-
         /// <summary>
         ///     The current progress value.
         /// </summary>
