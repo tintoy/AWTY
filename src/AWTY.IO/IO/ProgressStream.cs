@@ -12,17 +12,17 @@ namespace AWTY.IO
         /// <summary>
         ///     The inner stream.
         /// </summary>
-        readonly Stream _innerStream;
+        readonly Stream                 _innerStream;
 
         /// <summary>
         ///     The direction in which the stream's data is expected to flow.
         /// </summary>
-        readonly StreamDirection _streamDirection;
+        readonly StreamDirection        _streamDirection;
 
         /// <summary>
         ///     The sink used to report stream progress.
         /// </summary>
-        readonly IProgressSink<long> _progressSink;
+        readonly IProgressSink<long>    _sink;
 
         /// <summary>
         ///     Create a new <see cref="ProgressStream"/> that wraps the specified inner <see cref="Stream"/>.
@@ -33,10 +33,10 @@ namespace AWTY.IO
         /// <param name="streamDirection">
         ///     The direction in which the stream's data is expected to flow.
         /// </param>
-        /// <param name="progressSink">
+        /// <param name="sink">
         ///     The sink used to report stream progress.
         /// </param>
-        public ProgressStream(Stream innerStream, StreamDirection streamDirection, IProgressSink<long> progressSink)
+        public ProgressStream(Stream innerStream, StreamDirection streamDirection, IProgressSink<long> sink)
         {
             if (innerStream == null)
                 throw new ArgumentNullException(nameof(innerStream));
@@ -49,10 +49,26 @@ namespace AWTY.IO
 
             _innerStream = innerStream;
             _streamDirection = streamDirection;
-            _progressSink = progressSink;
+            _sink = sink;
 
+            // Override total, if appropriate.
             if (_streamDirection == StreamDirection.Read && _innerStream.CanSeek)
-                _progressSink.Total = _innerStream.Length;
+                _sink.Total = _innerStream.Length;
+        }
+
+        /// <summary>
+        ///     Raised when stream progress has changed.
+        /// </summary>
+        public event EventHandler<DetailedProgressEventArgs<long>> ProgressChanged
+        {
+            add
+            {
+                _sink.Strategy.ProgressChanged += value;
+            }
+            remove
+            {
+                _sink.Strategy.ProgressChanged -= value;
+            }
         }
 
         /// <summary>
@@ -144,7 +160,7 @@ namespace AWTY.IO
         public override void SetLength(long value)
         {
             _innerStream.SetLength(value);
-            _progressSink.Total = Math.Max(1, value);
+            _sink.Total = Math.Max(1, value);
         }
 
         /// <summary>
@@ -170,7 +186,7 @@ namespace AWTY.IO
             int bytesRead = _innerStream.Read(buffer, offset, count);
 
             if (_streamDirection == StreamDirection.Read)
-                _progressSink.Add(bytesRead);
+                _sink.Add(bytesRead);
 
             return bytesRead;
         }
@@ -195,7 +211,7 @@ namespace AWTY.IO
             _innerStream.Write(buffer, offset, count);
 
             if (_streamDirection == StreamDirection.Write)
-                _progressSink.Add(count);
+                _sink.Add(count);
         }
     }
 }

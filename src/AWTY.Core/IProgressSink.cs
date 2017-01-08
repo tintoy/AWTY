@@ -12,6 +12,11 @@ namespace AWTY
         where TValue : IComparable<TValue>
     {
         /// <summary>
+        ///     The strategy used to determine when progress should be reported.
+        /// </summary>
+        IProgressStrategy<TValue> Strategy { get; }
+
+        /// <summary>
         ///     The current progress value.
         /// </summary>
         TValue Current { get; }

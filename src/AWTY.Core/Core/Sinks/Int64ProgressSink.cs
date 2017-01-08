@@ -60,6 +60,11 @@ namespace AWTY.Core.Sinks
         }
 
         /// <summary>
+        ///     The strategy used to determine when progress should be reported.
+        /// </summary>
+        public IProgressStrategy<long> Strategy => _strategy;
+
+        /// <summary>
         ///     The current progress value.
         /// </summary>
         public long Current => _current;
