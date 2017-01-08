@@ -8,14 +8,25 @@ namespace AWTY.Core.Tests
     /// </summary>
     public partial class Int32ChunkedPercentageTests
     {
-        [Fact]
-        public void Add_1_UpTo_100_ChunkSize_20()
+        /// <summary>
+        ///     Report progress to a <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy.
+        /// </summary>
+        /// <param name="total">
+        ///     The total value against which progress is measured.
+        /// </param>
+        /// <param name="increment">
+        ///     The value to increment progress by in each iteration.
+        /// </param>
+        /// <param name="chunkSize">
+        ///     The minimum change in progress to notify.
+        /// </param>
+        /// <param name="expectedPercentages">
+        ///     An array of the expected completion percentages from notifications.
+        /// </param>
+        [Theory]
+        [MemberData(nameof(AddTheoryData))]
+        public void Add(int total, int increment, int chunkSize, int[] expectedPercentages)
         {
-            const int increment = 1;
-            const int total = 100;
-            const int chunkSize = 20;
-            int[] expectedPercentages = { 20, 40, 60, 80, 100 };
-
             List<int> actualPercentages = new List<int>();
             
             IProgressStrategy<int> strategy = ProgressStrategy.PercentComplete.Chunked.Int32(chunkSize);
@@ -24,34 +35,29 @@ namespace AWTY.Core.Tests
                 actualPercentages.Add(args.PercentComplete);
             };
 
-            for (int currentProgress = 0; currentProgress <= total; currentProgress += increment)
-                strategy.ReportProgress(currentProgress, total);
-
-            Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
-            Assert.Equal(expectedPercentages, actualPercentages);
-        }
-
-        [Fact]
-        public void Add_3_UpTo_100_ChunkSize_5()
-        {
-            const int increment = 3;
-            const int total = 100;
-            const int chunkSize = 5;
-            int[] expectedPercentages = { 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96 };
-
-            List<int> actualPercentages = new List<int>();
-            
-            IProgressStrategy<int> strategy = ProgressStrategy.PercentComplete.Chunked.Int32(chunkSize);
-            strategy.ProgressChanged += (sender, args) =>
+            int adjustedTotal = AdjustTotalForIncrement(total, increment);
+            for (int currentProgress = 0; currentProgress <= adjustedTotal; currentProgress += increment)
             {
-                actualPercentages.Add(args.PercentComplete);
-            };
-
-            for (int currentProgress = 0; currentProgress <= total; currentProgress += increment)
                 strategy.ReportProgress(currentProgress, total);
+            }
 
             Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
             Assert.Equal(expectedPercentages, actualPercentages);
         }
+
+        // TODO: Theory test for Remove.
+
+        /// <summary>
+        ///     Data for the <see cref="Add"/> theory test.
+        /// </summary>
+        public static IEnumerable<object[]> AddTheoryData => TestData.Theory.ChunkedPercentage32;
+
+        /// <summary>
+        ///     Adjust the total to yield the correct number of iterations, accounting for the specified increment.
+        /// </summary>
+        /// <remarks>
+        ///     Handles the case where the increment value causes the last iteration's progress value to be less than the total.
+        /// </remarks>
+        static int AdjustTotalForIncrement(int total, int increment) => total + (total % increment) + 1;
     }
 }

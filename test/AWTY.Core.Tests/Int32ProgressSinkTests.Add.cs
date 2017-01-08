@@ -12,7 +12,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_0() 
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: ProgressStrategy.Never.Int32());
+            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: _strategies.Never32());
             progressSink.Add(0);
 
             Assert.Equal(10, progressSink.Total);
@@ -22,7 +22,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_5() 
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: ProgressStrategy.Never.Int32());
+            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: _strategies.Never32());
             progressSink.Add(5);
 
             Assert.Equal(10, progressSink.Total);
@@ -32,7 +32,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_10() 
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: ProgressStrategy.Never.Int32());
+            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: _strategies.Never32());
             progressSink.Add(10);
 
             Assert.Equal(10, progressSink.Total);
@@ -42,7 +42,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_11() 
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: ProgressStrategy.Never.Int32());
+            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10, strategy: _strategies.Never32());
             progressSink.Add(11);
 
             Assert.Equal(10, progressSink.Total);

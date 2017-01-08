@@ -21,7 +21,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Ctor_Total_100() 
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 100, strategy: ProgressStrategy.Never.Int32());
+            IProgressSink<int> progressSink = new Int32ProgressSink(total: 100, strategy: _strategies.Never32());
             Assert.Equal(100, progressSink.Total);
             Assert.Equal(0, progressSink.Current);
         }
@@ -29,7 +29,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Ctor_Total_MaxValue() 
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: Int32.MaxValue, strategy: ProgressStrategy.Never.Int32());
+            IProgressSink<int> progressSink = new Int32ProgressSink(total: Int32.MaxValue, strategy: _strategies.Never32());
             Assert.Equal(0, progressSink.Current);
             Assert.Equal(Int32.MaxValue, progressSink.Total);
         }
@@ -38,7 +38,7 @@ namespace AWTY.Core.Tests
         public void Ctor_Total_0() 
         {
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => new Int32ProgressSink(total: 0, strategy: ProgressStrategy.Never.Int32())
+                () => new Int32ProgressSink(total: 0, strategy: _strategies.Never32())
             );
         }
 
@@ -46,7 +46,7 @@ namespace AWTY.Core.Tests
         public void Ctor_Total_Negative1() 
         {
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => new Int32ProgressSink(total: -1, strategy: ProgressStrategy.Never.Int32())
+                () => new Int32ProgressSink(total: -1, strategy: _strategies.Never32())
             );
         }
     }

@@ -57,7 +57,16 @@ namespace AWTY.Core.Strategies
             lock(_stateLock)
             {
                 percentComplete = CalculatePercentComplete(current, total);
-                if (Math.Abs(percentComplete - _currentPercentComplete) < _chunkSize)
+                if (percentComplete == _currentPercentComplete)
+                    return; // No change, so no notification.
+
+                
+                bool notify =
+                    Math.Abs(percentComplete - _currentPercentComplete) >= _chunkSize
+                    ||
+                    percentComplete == 100; // Handle trailing partial chunk.
+
+                if (!notify)
                     return;
 
                 _currentPercentComplete = percentComplete;
