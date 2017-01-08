@@ -17,14 +17,10 @@ namespace AWTY.IO.Tests
 
         // TODO: Change these from Facts to Theories with inline data.
 
-        [Fact]
-        public void Read_100_1_ChunkedPercentage_10() 
+        [Theory]
+        [MemberData(nameof(ReadTestData))]
+        public void Read_ChunkedPercentage(long total, long increment, int chunkSize, int[] expectedPercentages) 
         {
-            const long total = 100;
-            const long increment = 1;
-            const int chunkSize = 10;
-            int[] expectedPercentages = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-
             List<int> actualPercentages = new List<int>();
 
             using (MemoryStream input = FillMemoryStream(total))
@@ -47,124 +43,48 @@ namespace AWTY.IO.Tests
             Assert.Equal(expectedPercentages, actualPercentages);
         }
 
-        [Fact]
-        public void Read_100_5_ChunkedPercentage_10() 
+        /// <summary>
+        ///     Data for the stream-read test theory.
+        /// </summary>
+        public static IEnumerable<object> ReadTestData
         {
-            const long total = 100;
-            const long increment = 5;
-            const int chunkSize = 10;
-            int[] expectedPercentages = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-
-            List<int> actualPercentages = new List<int>();
-
-            using (MemoryStream input = FillMemoryStream(total))
-            using (ProgressStream progress = input.WithReadProgress(ChunkedPercentageStrategy(chunkSize)))
+            get
             {
-                progress.ProgressChanged += (sender, args) =>
-                {
-                    actualPercentages.Add(args.PercentComplete);
-                };
+                yield return ReadTestDataRow(
+                    total: 100,
+                    increment: 1,
+                    chunkSize: 10,
+                    expectedPercentages: new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }
+                );
 
-                byte[] buffer = new byte[increment];
-                int bytesRead = 0;
-                do
-                {
-                    bytesRead = progress.Read(buffer, offset: 0, count: buffer.Length);
-                } while(bytesRead > 0);
+                yield return ReadTestDataRow(
+                    total: 100,
+                    increment: 5,
+                    chunkSize: 10,
+                    expectedPercentages: new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }
+                );
+
+                yield return ReadTestDataRow(
+                    total: 100,
+                    increment: 20,
+                    chunkSize: 10,
+                    expectedPercentages: new int[] { 20, 40, 60, 80, 100 }
+                );
+
+                yield return ReadTestDataRow(
+                    total: 50,
+                    increment: 10,
+                    chunkSize: 5,
+                    expectedPercentages: new int[] { 20, 40, 60, 80, 100 }
+                );
+
+                yield return ReadTestDataRow(
+                    total: 70,
+                    increment: 3,
+                    chunkSize: 5,
+                    expectedPercentages: new int[] { 8, 17, 25, 30, 38, 47, 55, 60, 68, 77, 85, 90, 98, 100 }
+                );
             }
-
-            Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
-            Assert.Equal(expectedPercentages, actualPercentages);
-        }
-
-        [Fact]
-        public void Read_100_20_ChunkedPercentage_10() 
-        {
-            const long total = 100;
-            const long increment = 20;
-            const int chunkSize = 10;
-            int[] expectedPercentages = { 20, 40, 60, 80, 100 };
-
-            List<int> actualPercentages = new List<int>();
-
-            using (MemoryStream input = FillMemoryStream(total))
-            using (ProgressStream progress = input.WithReadProgress(ChunkedPercentageStrategy(chunkSize)))
-            {
-                progress.ProgressChanged += (sender, args) =>
-                {
-                    actualPercentages.Add(args.PercentComplete);
-                };
-
-                byte[] buffer = new byte[increment];
-                int bytesRead = 0;
-                do
-                {
-                    bytesRead = progress.Read(buffer, offset: 0, count: buffer.Length);
-                } while(bytesRead > 0);
-            }
-
-            Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
-            Assert.Equal(expectedPercentages, actualPercentages);
-        }
-
-        [Fact]
-        public void Read_50_10_ChunkedPercentage_5() 
-        {
-            const long total = 50;
-            const long increment = 10;
-            const int chunkSize = 5;
-            int[] expectedPercentages = { 20, 40, 60, 80, 100 };
-
-            List<int> actualPercentages = new List<int>();
-
-            using (MemoryStream input = FillMemoryStream(total))
-            using (ProgressStream progress = input.WithReadProgress(ChunkedPercentageStrategy(chunkSize)))
-            {
-                progress.ProgressChanged += (sender, args) =>
-                {
-                    actualPercentages.Add(args.PercentComplete);
-                };
-
-                byte[] buffer = new byte[increment];
-                int bytesRead = 0;
-                do
-                {
-                    bytesRead = progress.Read(buffer, offset: 0, count: buffer.Length);
-                } while(bytesRead > 0);
-            }
-
-            Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
-            Assert.Equal(expectedPercentages, actualPercentages);
-        }
-
-        [Fact]
-        public void Read_70_3_ChunkedPercentage_5() 
-        {
-            const long total = 70;
-            const long increment = 3;
-            const int chunkSize = 5;
-            int[] expectedPercentages = { 8, 17, 25, 30, 38, 47, 55, 60, 68, 77, 85, 90, 98, 100 };
-
-            List<int> actualPercentages = new List<int>();
-
-            using (MemoryStream input = FillMemoryStream(total))
-            using (ProgressStream progress = input.WithReadProgress(ChunkedPercentageStrategy(chunkSize)))
-            {
-                progress.ProgressChanged += (sender, args) =>
-                {
-                    actualPercentages.Add(args.PercentComplete);
-                };
-
-                byte[] buffer = new byte[increment];
-                int bytesRead = 0;
-                do
-                {
-                    bytesRead = progress.Read(buffer, offset: 0, count: buffer.Length);
-                } while(bytesRead > 0);
-            }
-
-            Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
-            Assert.Equal(expectedPercentages, actualPercentages);
         }
 
         // TODO: Make these into fixtures.
@@ -201,6 +121,29 @@ namespace AWTY.IO.Tests
         IProgressStrategy<long> ChunkedPercentageStrategy(int chunkSize)
         {
             return ProgressStrategy.PercentComplete.Chunked.Int64(chunkSize);
+        }
+
+        /// <summary>
+        ///     Create a new data row for the stream-read test theory.
+        /// </summary>
+        /// <param name="total">
+        ///     The total number of bytes in the stream.
+        /// </param>
+        /// <param name="increment">
+        ///     The number of bytes to read from the stream in each iteration.
+        /// </param>
+        /// <param name="chunkSize">
+        ///     The minimum expected change in percentage completion.
+        /// </param>
+        /// <param name="expectedPercentages">
+        ///     An array of expected percentage values.
+        /// </param>
+        /// <returns>
+        ///     An array containing the row's data.
+        /// </returns>
+        static object[] ReadTestDataRow(long total, long increment, int chunkSize, int[] expectedPercentages)
+        {
+            return new object[4] { total, increment, chunkSize, expectedPercentages };
         }
     }
 }
