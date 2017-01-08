@@ -53,19 +53,21 @@ namespace AWTY.Core.Strategies
         /// </param>
         public void ReportProgress(int current, int total)
         {
+            int percentComplete;
             lock(_stateLock)
             {
-                int percentComplete = CalculatePercentComplete(current, total);
+                percentComplete = CalculatePercentComplete(current, total);
                 if (Math.Abs(percentComplete - _currentPercentComplete) < _chunkSize)
                     return;
 
                 _currentPercentComplete = percentComplete;
-                ProgressChanged?.Invoke(this, new DetailedProgressEventArgs<int>(
-                    percentComplete,
-                    current,
-                    total
-                ));
             }
+            
+            ProgressChanged?.Invoke(this, new DetailedProgressEventArgs<int>(
+                percentComplete,
+                current,
+                total
+            ));
         }
 
         /// <summary>
