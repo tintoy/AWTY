@@ -9,7 +9,7 @@ namespace AWTY
     ///     The type of value used to represent progress.
     /// </typeparam>
     public interface IProgressSink<TValue>
-        where TValue : IComparable<TValue>
+        where TValue : IEquatable<TValue>, IComparable<TValue>
     {
         /// <summary>
         ///     The strategy used to determine when progress should be reported.

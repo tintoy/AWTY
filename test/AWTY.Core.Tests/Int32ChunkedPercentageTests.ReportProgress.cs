@@ -3,10 +3,8 @@ using Xunit;
 
 namespace AWTY.Core.Tests
 {
-    using Strategies;
-
     /// <summary>
-    ///     Tests for the <see cref="Int32ChunkedPercentage"/> progress-reporting strategy.
+    ///     Tests for the <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy.
     /// </summary>
     public partial class Int32ChunkedPercentageTests
     {
@@ -20,7 +18,7 @@ namespace AWTY.Core.Tests
 
             List<int> actualPercentages = new List<int>();
             
-            IProgressStrategy<int> strategy = new Int32ChunkedPercentage(chunkSize);
+            IProgressStrategy<int> strategy = ProgressStrategy.PercentComplete.Chunked.Int32(chunkSize);
             strategy.ProgressChanged += (sender, args) =>
             {
                 actualPercentages.Add(args.PercentComplete);
@@ -43,7 +41,7 @@ namespace AWTY.Core.Tests
 
             List<int> actualPercentages = new List<int>();
             
-            IProgressStrategy<int> strategy = new Int32ChunkedPercentage(chunkSize);
+            IProgressStrategy<int> strategy = ProgressStrategy.PercentComplete.Chunked.Int32(chunkSize);
             strategy.ProgressChanged += (sender, args) =>
             {
                 actualPercentages.Add(args.PercentComplete);

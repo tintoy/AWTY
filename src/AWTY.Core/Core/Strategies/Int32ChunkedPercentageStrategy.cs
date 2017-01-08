@@ -3,10 +3,10 @@ using System;
 namespace AWTY.Core.Strategies
 {
     /// <summary>
-    ///     Progress reporting strategy that reports 64-bit integer progress when percentage completion changes exceed a specified value.
+    ///     Progress notification strategy that reports 32-bit integer progress when percentage completion changes exceed a specified value.
     /// </summary>
-    public class Int64ChunkedPercentage
-        : IProgressStrategy<long>
+    public class Int32ChunkedPercentageStrategy
+        : ProgressStrategy<int>
     {
         /// <summary>
         ///     An object used to synchronise access to state data.
@@ -16,7 +16,7 @@ namespace AWTY.Core.Strategies
         /// <summary>
         ///     The minimum change in percentage completion to report.
         /// </summary>
-        readonly long _chunkSize;
+        readonly int _chunkSize;
 
         /// <summary>
         ///     The current percentage of completion.
@@ -24,12 +24,12 @@ namespace AWTY.Core.Strategies
         int _currentPercentComplete;
 
         /// <summary>
-        ///     Create a new <see cref="Int64ChunkedPercentage"/> progress-reporting strategy.
+        ///     Create a new <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy.
         /// </summary>
         /// <param name="chunkSize">
         ///     The minimum change in percentage completion to report.
         /// </param>
-        public Int64ChunkedPercentage(long chunkSize)
+        public Int32ChunkedPercentageStrategy(int chunkSize)
         {
             if (chunkSize < 1)
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), chunkSize, "Chunk size cannot be less than 1.");
@@ -38,14 +38,9 @@ namespace AWTY.Core.Strategies
         }
 
         /// <summary>
-        ///     Raised when the strategy determines that progress has changed.
-        /// </summary>
-        public event EventHandler<DetailedProgressEventArgs<long>> ProgressChanged;
-
-        /// <summary>
         ///     The minimum change in percentage completion to report.
         /// </summary>
-        public long ChunkSize => _chunkSize;
+        public int ChunkSize => _chunkSize;
 
         /// <summary>
         ///     Report the current progress.
@@ -56,7 +51,7 @@ namespace AWTY.Core.Strategies
         /// <param name="total">
         ///     The total value against which progress is measured.
         /// </param>
-        public void ReportProgress(long current, long total)
+        public override void ReportProgress(int current, int total)
         {
             int percentComplete;
             lock(_stateLock)
@@ -68,11 +63,7 @@ namespace AWTY.Core.Strategies
                 _currentPercentComplete = percentComplete;
             }
             
-            ProgressChanged?.Invoke(this, new DetailedProgressEventArgs<long>(
-                percentComplete,
-                current,
-                total
-            ));
+            OnProgressChanged(current, total, percentComplete);
         }
 
         /// <summary>
@@ -87,12 +78,12 @@ namespace AWTY.Core.Strategies
         /// <returns>
         ///     The percentage of completion.
         /// </returns>
-        int CalculatePercentComplete(long current, long total)
+        int CalculatePercentComplete(int current, int total)
         {
             if (current >= total)
                 return 100;
             
-            return (int)(((double)current / total) * 100);
+            return (int)(((float)current / total) * 100);
         }
     }
 }

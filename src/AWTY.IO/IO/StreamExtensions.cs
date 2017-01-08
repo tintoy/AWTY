@@ -30,7 +30,7 @@ namespace AWTY.IO
         /// <exception cref="InvalidOperationException">
         ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
         /// </exception>
-        public static Stream WithReadProgress(this Stream stream, IProgressStrategy<long> strategy, long? total = null)
+        public static ProgressStream WithReadProgress(this Stream stream, IProgressStrategy<long> strategy, long? total = null)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));

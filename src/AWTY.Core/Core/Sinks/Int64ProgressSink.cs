@@ -89,8 +89,7 @@ namespace AWTY.Core.Sinks
                 long current = _current;
 
                 long total = Interlocked.Exchange(ref _total, value);
-                if (total != value)
-                    _strategy.ReportProgress(current, total);
+                _strategy.ReportProgress(current, total);
             }
         }
 
@@ -105,8 +104,7 @@ namespace AWTY.Core.Sinks
             long total = _total;
 
             long current = Interlocked.Add(ref _current, value);
-            if (current != value)
-                _strategy.ReportProgress(current, total);
+            _strategy.ReportProgress(current, total);
 
             return current;
         }
@@ -121,8 +119,7 @@ namespace AWTY.Core.Sinks
         {
             long total = _total;
             long current = Interlocked.Add(ref _current, -value);
-            if (current != value)
-                _strategy.ReportProgress(current, total);
+            _strategy.ReportProgress(current, total);
 
             return current;
         }
@@ -134,8 +131,7 @@ namespace AWTY.Core.Sinks
         {
             long total = _total;
             long previous = Interlocked.Exchange(ref _current, 0);
-            if (previous != 0)
-                _strategy.ReportProgress(0, total);
+            _strategy.ReportProgress(0, total);
         }
     }
 }

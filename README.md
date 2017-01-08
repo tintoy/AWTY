@@ -12,7 +12,7 @@ For example, [Int32ChunkedPercentage](src/AWTY.Core/Core/Strategies/Int32Chunked
 So to only report progress for every change of 5 percent or more when data is read from a stream:
 
 ```csharp
-IProgressStrategy<long> strategy = new Int64ChunkedPercentage(chunkSize: 5);
+IProgressStrategy<long> strategy = ProgressStrategy.Percentage.Chunked.Int64(5);
 using (ProgressStream stream = new FileStream("foo.txt").WithReadProgress(strategy))
 {
     stream.ProgressChanged += (sender, args) =>

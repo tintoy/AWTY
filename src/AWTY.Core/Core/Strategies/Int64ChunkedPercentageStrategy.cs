@@ -3,10 +3,10 @@ using System;
 namespace AWTY.Core.Strategies
 {
     /// <summary>
-    ///     Progress reporting strategy that reports 32-bit integer progress when percentage completion changes exceed a specified value.
+    ///     Progress notification strategy that reports 64-bit integer progress when percentage completion changes exceed a specified value.
     /// </summary>
-    public class Int32ChunkedPercentage
-        : IProgressStrategy<int>
+    public class Int64ChunkedPercentageStrategy
+        : ProgressStrategy<long>
     {
         /// <summary>
         ///     An object used to synchronise access to state data.
@@ -24,17 +24,12 @@ namespace AWTY.Core.Strategies
         int _currentPercentComplete;
 
         /// <summary>
-        ///     Raised when the strategy determines that progress has changed.
-        /// </summary>
-        public event EventHandler<DetailedProgressEventArgs<int>> ProgressChanged;
-
-        /// <summary>
-        ///     Create a new <see cref="Int32ChunkedPercentage"/> progress-reporting strategy.
+        ///     Create a new <see cref="Int64ChunkedPercentageStrategy"/> progress-notification strategy.
         /// </summary>
         /// <param name="chunkSize">
         ///     The minimum change in percentage completion to report.
         /// </param>
-        public Int32ChunkedPercentage(int chunkSize)
+        public Int64ChunkedPercentageStrategy(int chunkSize)
         {
             if (chunkSize < 1)
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), chunkSize, "Chunk size cannot be less than 1.");
@@ -56,23 +51,27 @@ namespace AWTY.Core.Strategies
         /// <param name="total">
         ///     The total value against which progress is measured.
         /// </param>
-        public void ReportProgress(int current, int total)
+        public override void ReportProgress(long current, long total)
         {
             int percentComplete;
             lock(_stateLock)
             {
                 percentComplete = CalculatePercentComplete(current, total);
-                if (Math.Abs(percentComplete - _currentPercentComplete) < _chunkSize)
-                    return;
+                if (percentComplete == _currentPercentComplete)
+                    return; // No change, so no notification.
 
+                bool notify =
+                    Math.Abs(percentComplete - _currentPercentComplete) >= _chunkSize
+                    ||
+                    percentComplete == 100; // Handle trailing partial chunk.
+
+                if (!notify)
+                    return;
+                    
                 _currentPercentComplete = percentComplete;
             }
             
-            ProgressChanged?.Invoke(this, new DetailedProgressEventArgs<int>(
-                percentComplete,
-                current,
-                total
-            ));
+            OnProgressChanged(current, total, percentComplete);
         }
 
         /// <summary>
@@ -87,12 +86,12 @@ namespace AWTY.Core.Strategies
         /// <returns>
         ///     The percentage of completion.
         /// </returns>
-        int CalculatePercentComplete(int current, int total)
+        int CalculatePercentComplete(long current, long total)
         {
             if (current >= total)
                 return 100;
             
-            return (int)(((float)current / total) * 100);
+            return (int)(((double)current / total) * 100);
         }
     }
 }

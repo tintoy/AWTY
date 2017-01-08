@@ -9,7 +9,7 @@ namespace AWTY
     ///     The type of value used to represent progress.
     /// </typeparam>
     public interface IProgressStrategy<TValue>
-        where TValue : IComparable<TValue>
+        where TValue : IEquatable<TValue>, IComparable<TValue>
     {
         /// <summary>
         ///     Raised when the strategy has determined that progress has changed.

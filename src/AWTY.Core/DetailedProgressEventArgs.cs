@@ -7,7 +7,7 @@ namespace AWTY
     /// </summary>
     public class DetailedProgressEventArgs<TValue>
         : ProgressEventArgs<TValue>
-        where TValue : IComparable<TValue>
+        where TValue : IEquatable<TValue>, IComparable<TValue>
     {
         /// <summary>
         ///     Create new <see cref="DetailedProgressEventArgs{TValue}"/>.
