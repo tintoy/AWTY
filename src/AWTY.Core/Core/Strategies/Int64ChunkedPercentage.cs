@@ -43,6 +43,11 @@ namespace AWTY.Core.Strategies
         public event EventHandler<DetailedProgressEventArgs<long>> ProgressChanged;
 
         /// <summary>
+        ///     The minimum change in percentage completion to report.
+        /// </summary>
+        public long ChunkSize => _chunkSize;
+
+        /// <summary>
         ///     Report the current progress.
         /// </summary>
         /// <param name="current">

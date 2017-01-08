@@ -43,6 +43,11 @@ namespace AWTY.Core.Strategies
         }
 
         /// <summary>
+        ///     The minimum change in percentage completion to report.
+        /// </summary>
+        public int ChunkSize => _chunkSize;
+
+        /// <summary>
         ///     Report the current progress.
         /// </summary>
         /// <param name="current">
