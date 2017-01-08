@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0-*",
+  
+  "buildOptions": {
+    "debugType": "portable",
+		"xmlDoc": true,
+		"publicSign": true,
+		"keyFile": "../../AWTY.snk"
+	},
+
+  "packOptions": {
+		"title": "AWTY.Core",
+		"summary": "Are we there yet (I/O)",
+		"description": "Are we there yet? Add progress reporting to .NET I/O.",
+		"authors": [
+			"tintoy@tintoy.io"
+		],
+		"copyright": "Copyright © Adam Friedman 2017",
+		"owners": [
+			"tintoy@tintoy.io"
+		],
+		"tags": [
+			"AWTY",
+			"Progress",
+      "IO"
+		],
+		"projectUrl": "https://github.com/tintoy/AWTY/",
+		"repository": {
+            "type": "git",
+            "url": "https://github.com/tintoy/AWTY"
+        },
+        "licenseUrl": "https://raw.githubusercontent.com/tintoy/AWTY/development/v1.0/LICENSE"		
+	},
+
+  "tooling": {
+		"defaultNamespace": "AWTY"
+	},
+
+  "dependencies": {
+		"AWTY.Core": "1.0.0-*"
+	},
+  "frameworks": {
+    "netstandard1.6": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      }
+    }
+  }
+}
