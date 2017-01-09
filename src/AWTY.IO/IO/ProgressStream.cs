@@ -58,10 +58,6 @@ namespace AWTY.IO
             _innerStream = innerStream;
             _streamDirection = streamDirection;
             _sink = sink;
-
-            // Override total, if appropriate.
-            if (_streamDirection == StreamDirection.Read && _innerStream.CanSeek)
-                _sink.Total = _innerStream.Length;
         }
 
         /// <summary>

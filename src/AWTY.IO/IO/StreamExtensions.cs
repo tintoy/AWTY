@@ -22,7 +22,7 @@ namespace AWTY.IO
         /// <param name="total">
         ///     An optional total used to calculate progress.
         ///
-        ///     If not specified, the stream length is used.
+        ///     If not specified, the stream length is used (providing the stream supports seeking).
         /// </param>
         /// <param name="ownsStream">
         ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
@@ -32,6 +32,7 @@ namespace AWTY.IO
         /// </returns>
         /// <exception cref="InvalidOperationException">
         ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
+        ///     <paramref name="total"/> was not specified, and the stream does not support seeking.
         /// </exception>
         public static ProgressStream WithReadProgress(this Stream stream, IObserver<RawProgressData<long>> progressObserver, long? total = null, bool ownsStream = true)
         {
@@ -44,6 +45,10 @@ namespace AWTY.IO
             Int64ProgressSink sink = new Int64ProgressSink();
             if (total.HasValue)
                 sink.Total = total.Value;
+            else if (stream.CanSeek)
+                sink.Total = stream.Length;
+            else
+                throw new InvalidOperationException("Total was not specified, and cannot be auto-detected because the specified stream does not support seeking.");
 
             sink.Subscribe(progressObserver);
 
