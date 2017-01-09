@@ -15,6 +15,11 @@ namespace AWTY.Http
         : HttpContent
     {
         /// <summary>
+        ///     The inner <see cref="HttpContent"/>.
+        /// </summary>
+        HttpContent                         _innerContent;
+
+        /// <summary>
         ///     The expected stream direction.
         /// </summary>
         /// <remarks>
@@ -42,7 +47,13 @@ namespace AWTY.Http
         /// </param>
         public ProgressContent(HttpContent innerContent, StreamDirection direction, IObserver<RawProgressData<long>> progressObserver)
         {
-            InnerContent = innerContent;
+            if (innerContent == null)
+                throw new ArgumentNullException(nameof(innerContent));
+
+            if (progressObserver == null)
+                throw new ArgumentNullException(nameof(progressObserver));
+
+            _innerContent = innerContent;
             _direction = direction;
             _progressObserver = progressObserver;
 
@@ -50,9 +61,16 @@ namespace AWTY.Http
         }
 
         /// <summary>
-        ///     The inner <see cref="HttpContent"/>.
+        ///     Dispose of resources being used by the <see cref="ProgressContent"/>.
         /// </summary>
-        public HttpContent InnerContent { get; }
+        /// <param name="disposing">
+        ///     Explicit disposal?
+        /// </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _innerContent.Dispose();
+        }
 
         /// <summary>
         ///     Serialise the HTTP content to a stream as an asynchronous operation.
@@ -88,12 +106,12 @@ namespace AWTY.Http
 
                 using (progressStream)
                 {
-                    await InnerContent.CopyToAsync(progressStream);
+                    await _innerContent.CopyToAsync(progressStream);
                 }
             }
             else
             {
-                await InnerContent.CopyToAsync(stream);
+                await _innerContent.CopyToAsync(stream);
             }
         }
 
@@ -119,7 +137,7 @@ namespace AWTY.Http
         void LoadHeaders()
         {
             Headers.Clear();
-            foreach (var header in InnerContent.Headers)
+            foreach (var header in _innerContent.Headers)
                 Headers.TryAddWithoutValidation(header.Key, header.Value);
         }
     }
