@@ -8,6 +8,7 @@
 	},
   "dependencies": {
     "AWTY.Core": "1.0.0-*",
+    "System.Reactive": "3.1.1",
     "System.Runtime.Serialization.Primitives": "4.1.1",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-build10015"

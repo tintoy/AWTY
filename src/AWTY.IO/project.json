@@ -37,7 +37,8 @@
 	},
 
   "dependencies": {
-		"AWTY.Core": "1.0.0-*"
+		"AWTY.Core": "1.0.0-*",
+        "System.Reactive": "3.1.1"
 	},
   "frameworks": {
     "netstandard1.6": {
