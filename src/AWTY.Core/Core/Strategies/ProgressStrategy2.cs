@@ -59,10 +59,10 @@ namespace AWTY.Core.Strategies
         /// <param name="total">
         ///     The total value against which progress is measured.
         /// </param>
-        public abstract void ReportProgress(TValue current, TValue total);
+        protected abstract void ReportProgress(TValue current, TValue total);
 
         /// <summary>
-        ///     Called when progress has changed; raises the <see cref="ProgressChanged"/> event.
+        ///     Notify subscribers that progress has changed.
         /// </summary>
         /// <param name="current">
         ///     The current progress value.

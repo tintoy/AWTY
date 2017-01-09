@@ -3,10 +3,10 @@ using System;
 namespace AWTY.Core.Strategies
 {
     /// <summary>
-    ///     Progress notification strategy that reports 32-bit integer progress when percentage completion changes exceed a specified value.
+    ///     Progress notification strategy that reports 64-bit integer progress when percentage completion changes exceed a specified value.
     /// </summary>
-    public class Int32ChunkedPercentageStrategy2
-        : ProgressStrategy2<int>
+    public class Int64ChunkedPercentageStrategy2
+        : ProgressStrategy2<long>
     {
         /// <summary>
         ///     An object used to synchronise access to state data.
@@ -16,20 +16,20 @@ namespace AWTY.Core.Strategies
         /// <summary>
         ///     The minimum change in percentage completion to report.
         /// </summary>
-        readonly int _chunkSize;
+        readonly int    _chunkSize;
 
         /// <summary>
         ///     The current percentage of completion.
         /// </summary>
-        int _currentPercentComplete;
+        int             _currentPercentComplete;
 
         /// <summary>
-        ///     Create a new <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy.
+        ///     Create a new <see cref="Int64ChunkedPercentageStrategy"/> progress-notification strategy.
         /// </summary>
         /// <param name="chunkSize">
         ///     The minimum change in percentage completion to report.
         /// </param>
-        public Int32ChunkedPercentageStrategy2(int chunkSize)
+        public Int64ChunkedPercentageStrategy2(int chunkSize)
         {
             if (chunkSize < 1)
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), chunkSize, "Chunk size cannot be less than 1.");
@@ -51,7 +51,7 @@ namespace AWTY.Core.Strategies
         /// <param name="total">
         ///     The total value against which progress is measured.
         /// </param>
-        protected override void ReportProgress(int current, int total)
+        protected override void ReportProgress(long current, long total)
         {
             int percentComplete;
             lock(_stateLock)
@@ -87,12 +87,12 @@ namespace AWTY.Core.Strategies
         /// <returns>
         ///     The percentage of completion.
         /// </returns>
-        int CalculatePercentComplete(int current, int total)
+        int CalculatePercentComplete(long current, long total)
         {
             if (current >= total)
                 return 100;
             
-            return (int)(((float)current / total) * 100);
+            return (int)(((double)current / total) * 100);
         }
     }
 }

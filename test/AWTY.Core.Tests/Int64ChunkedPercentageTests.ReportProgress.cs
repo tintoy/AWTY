@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Reactive;
 using Xunit;
 
 namespace AWTY.Core.Tests
 {
+    using Strategies;
+
     /// <summary>
     ///     Tests for the <see cref="Int64ChunkedPercentageStrategy"/> progress-notification strategy.
     /// </summary>
@@ -24,21 +28,23 @@ namespace AWTY.Core.Tests
         ///     An array of the expected completion percentages from notifications.
         /// </param>
         [Theory]
-        [MemberData(nameof(AddTheoryData))]
-        public void Add(long total, long increment, int chunkSize, int[] expectedPercentages)
+        [MemberData(nameof(ReportProgressTheoryData))]
+        public void ReportProgress(long total, long increment, int chunkSize, int[] expectedPercentages)
         {
             List<int> actualPercentages = new List<int>();
             
-            IProgressStrategy<long> strategy = ProgressStrategy.PercentComplete.Chunked.Int64(chunkSize);
-            strategy.ProgressChanged += (sender, args) =>
+            ProgressStrategy2<long> strategy = ProgressStrategy2.PercentComplete.Chunked.Int64(chunkSize);
+            strategy.Subscribe(progress =>
             {
-                actualPercentages.Add(args.PercentComplete);
-            };
+                actualPercentages.Add(progress.PercentComplete);
+            });
 
             long adjustedTotal = AdjustTotalForIncrement(total, increment);
             for (long currentProgress = 0; currentProgress <= adjustedTotal; currentProgress += increment)
             {
-                strategy.ReportProgress(currentProgress, total);
+                strategy.AsObserver().OnNext(
+                    RawProgressData.Create(currentProgress, total)
+                );
             }
 
             Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
@@ -48,9 +54,9 @@ namespace AWTY.Core.Tests
         // TODO: Theory test for Remove.
 
         /// <summary>
-        ///     Data for the <see cref="Add"/> theory test.
+        ///     Data for the <see cref="ReportProgress"/> theory test.
         /// </summary>
-        public static IEnumerable<object[]> AddTheoryData => TestData.Theory.ChunkedPercentage64;
+        public static IEnumerable<object[]> ReportProgressTheoryData => TestData.Theory.ChunkedPercentage64;
 
         /// <summary>
         ///     Adjust the total to yield the correct number of iterations, accounting for the specified increment.

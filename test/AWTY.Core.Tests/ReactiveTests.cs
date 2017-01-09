@@ -4,6 +4,8 @@ using Xunit;
 
 namespace AWTY.Core.Tests
 {
+    using System.Reactive;
+    using System.Reactive.Linq;
     using Sinks;
     using Strategies;
 
@@ -42,7 +44,9 @@ namespace AWTY.Core.Tests
             int adjustedTotal = AdjustTotalForIncrement(total, increment);
             for (int currentProgress = 0; currentProgress <= adjustedTotal; currentProgress += increment)
             {
-                strategy.ReportProgress(currentProgress, total);
+                strategy.AsObserver().OnNext(
+                    RawProgressData.Create(currentProgress, total)
+                );
             }
 
             Assert.Equal(expectedPercentages.Length, actualPercentages.Count);
