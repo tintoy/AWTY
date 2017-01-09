@@ -7,9 +7,9 @@
         "keyFile": "../../AWTY.snk"
     },
     "packOptions": {
-        "title": "AWTY.Core",
-        "summary": "Are we there yet (Core)",
-        "description": "Are we there yet? Add progress reporting to just about anything.",
+        "title": "AWTY.Http",
+        "summary": "Are we there yet (HTTP)",
+        "description": "Are we there yet? Add progress reporting to System.Net.Http.",
         "authors": [
             "tintoy@tintoy.io"
         ],
@@ -32,6 +32,8 @@
         "defaultNamespace": "AWTY"
     },
     "dependencies": {
+        "AWTY.Core": "1.0.0-*",
+        "AWTY.IO": "1.0.0-*",
         "System.Reactive": "3.1.1"
     },
     "frameworks": {

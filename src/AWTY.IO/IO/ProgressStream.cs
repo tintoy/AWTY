@@ -15,6 +15,11 @@ namespace AWTY.IO
         readonly Stream                 _innerStream;
 
         /// <summary>
+        ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed? 
+        /// </summary>
+        readonly bool                   _ownsStream;
+
+        /// <summary>
         ///     The direction in which the stream's data is expected to flow.
         /// </summary>
         readonly StreamDirection        _streamDirection;
@@ -30,13 +35,16 @@ namespace AWTY.IO
         /// <param name="innerStream">
         ///     The inner stream.
         /// </param>
+        /// <param name="ownsStream">
+        ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
+        /// </param>
         /// <param name="streamDirection">
         ///     The direction in which the stream's data is expected to flow.
         /// </param>
         /// <param name="sink">
         ///     The sink used to report stream progress.
         /// </param>
-        public ProgressStream(Stream innerStream, StreamDirection streamDirection, IProgressSink<long> sink)
+        public ProgressStream(Stream innerStream, bool ownsStream, StreamDirection streamDirection, IProgressSink<long> sink)
         {
             if (innerStream == null)
                 throw new ArgumentNullException(nameof(innerStream));
@@ -54,6 +62,21 @@ namespace AWTY.IO
             // Override total, if appropriate.
             if (_streamDirection == StreamDirection.Read && _innerStream.CanSeek)
                 _sink.Total = _innerStream.Length;
+        }
+
+        /// <summary>
+        ///     Dispose if resources being used by the <see cref="ProgressStream"/>.
+        /// </summary>
+        /// <param name="disposing">
+        ///     Explicit disposal?
+        /// </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (!_ownsStream)
+                    _innerStream.Dispose();
+            }
         }
 
         /// <summary>
@@ -101,6 +124,8 @@ namespace AWTY.IO
         ///     The direction in which the stream's data is expected to flow.
         /// </summary>
         public StreamDirection StreamDirection => _streamDirection;
+
+        
 
         /// <summary>
         ///     Flush the stream.

@@ -11,7 +11,7 @@
   "packOptions": {
 		"title": "AWTY.Core",
 		"summary": "Are we there yet (I/O)",
-		"description": "Are we there yet? Add progress reporting to .NET I/O.",
+		"description": "Are we there yet? Add progress reporting to System.IO.",
 		"authors": [
 			"tintoy@tintoy.io"
 		],

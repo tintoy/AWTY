@@ -16,13 +16,16 @@ namespace AWTY.IO
         /// <param name="stream">
         ///     The stream to wrap.
         /// </param>
-        /// <param name="strategy">
-        ///     The <see cref="IObserver{TValue}"/> used to determine when stream progress should be reported.
+        /// <param name="progressObserver">
+        ///     The <see cref="IObserver{TValue}"/> that receives raw progress data.
         /// </param>
         /// <param name="total">
         ///     An optional total used to calculate progress.
         ///
         ///     If not specified, the stream length is used.
+        /// </param>
+        /// <param name="ownsStream">
+        ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
         /// </param>
         /// <returns>
         ///     The new <see cref="ProgressStream"/>.
@@ -30,21 +33,21 @@ namespace AWTY.IO
         /// <exception cref="InvalidOperationException">
         ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
         /// </exception>
-        public static ProgressStream WithReadProgress(this Stream stream, IObserver<RawProgressData<long>> strategy, long? total = null)
+        public static ProgressStream WithReadProgress(this Stream stream, IObserver<RawProgressData<long>> progressObserver, long? total = null, bool ownsStream = true)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            if (strategy == null)
-                throw new ArgumentNullException(nameof(strategy));
+            if (progressObserver == null)
+                throw new ArgumentNullException(nameof(progressObserver));
 
             Int64ProgressSink sink = new Int64ProgressSink();
             if (total.HasValue)
                 sink.Total = total.Value;
 
-            sink.Subscribe(strategy);
+            sink.Subscribe(progressObserver);
 
-            return new ProgressStream(stream, StreamDirection.Read, sink);
+            return new ProgressStream(stream, ownsStream, StreamDirection.Read, sink);
         }
 
         /// <summary>
@@ -53,11 +56,14 @@ namespace AWTY.IO
         /// <param name="stream">
         ///     The stream to wrap.
         /// </param>
-        /// <param name="strategy">
-        ///     The <see cref="IObserver{TValue}"/> used to determine when stream progress should be reported.
+        /// <param name="progressObserver">
+        ///     The <see cref="IObserver{TValue}"/> that receives raw progress data.
         /// </param>
         /// <param name="total">
         ///     The total used to calculate progress.
+        /// </param>
+        /// <param name="ownsStream">
+        ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
         /// </param>
         /// <returns>
         ///     The new <see cref="ProgressStream"/>.
@@ -65,18 +71,18 @@ namespace AWTY.IO
         /// <exception cref="InvalidOperationException">
         ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
         /// </exception>
-        public static ProgressStream WithWriteProgress(this Stream stream, IObserver<RawProgressData<long>> strategy, long total)
+        public static ProgressStream WithWriteProgress(this Stream stream, IObserver<RawProgressData<long>> progressObserver, long total, bool ownsStream = true)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            if (strategy == null)
-                throw new ArgumentNullException(nameof(strategy));
+            if (progressObserver == null)
+                throw new ArgumentNullException(nameof(progressObserver));
 
             Int64ProgressSink sink = new Int64ProgressSink(total);
-            sink.Subscribe(strategy);
+            sink.Subscribe(progressObserver);
 
-            return new ProgressStream(stream, StreamDirection.Write, sink);
+            return new ProgressStream(stream, ownsStream, StreamDirection.Write, sink);
         }
     }
 }
