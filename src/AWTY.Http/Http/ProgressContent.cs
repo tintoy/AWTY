@@ -109,7 +109,9 @@ namespace AWTY.Http
             // Must know the content length to report progress.
             if (Headers.ContentLength.HasValue)
             {
-                ProgressStream progressStream = new ProgressStream(stream, _direction,
+                ProgressStream progressStream = new ProgressStream(
+                    innerStream: stream,
+                    streamDirection: _direction,
                     ownsStream: false,
                     sink: _sink
                 );
@@ -123,9 +125,7 @@ namespace AWTY.Http
                 }
             }
             else
-            {
                 await _innerContent.CopyToAsync(stream);
-            }
         }
 
         /// <summary>
@@ -139,9 +139,12 @@ namespace AWTY.Http
         /// </returns>
         protected override bool TryComputeLength(out long length)
         {
-            length = Headers.ContentLength ?? -1;
+            // DO NOT attempt to access this HttpContent's Headers property here (infinite recursion).
+            // Instead, use the inner content's headers.
 
-            return Headers.ContentLength.HasValue;
+            length = _innerContent.Headers.ContentLength ?? -1;
+
+            return _innerContent.Headers.ContentLength.HasValue;
         }
 
         /// <summary>

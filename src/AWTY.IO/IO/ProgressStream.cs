@@ -105,7 +105,7 @@ namespace AWTY.IO
         {
             if (disposing)
             {
-                if (!_ownsStream)
+                if (_ownsStream)
                     _innerStream.Dispose();
             }
         }
