@@ -17,6 +17,11 @@ namespace AWTY
     public static class HttpMessageExtensions
     {
         /// <summary>
+        ///     The name of the message property used to store the current progress context Id.
+        /// </summary>
+        const string ProgressContextIdProperty = "AWTY.ProgressContext";
+
+        /// <summary>
         ///     Add progress reporting for the specified request message.
         /// </summary>
         /// <param name="request">
@@ -40,6 +45,7 @@ namespace AWTY
                 throw new InvalidOperationException("The HTTP request message has already been configured to report progress.");
 
             request.Content = new ProgressContent(request.Content, StreamDirection.Write, progressObserver);
+            request.SetProgressContextId(ProgressContext.Current.Id);
 
             return request;
         }
@@ -70,6 +76,56 @@ namespace AWTY
             response.Content = new ProgressContent(response.Content, StreamDirection.Read, progressObserver);
 
             return response;
+        }
+
+        /// <summary>
+        ///     Get the Id of the <see cref="ProgressContext"/> (if any) that the request is associated with.
+        /// </summary>
+        /// <param name="request">
+        ///     The HTTP request message.
+        /// </param>
+        /// <returns>
+        ///     The progress context Id, or <c>null</c> if the request is not associated with a progress context
+        /// </returns>
+        public static string GetProgressContextId(this HttpRequestMessage request)
+        {
+            object progressContextId;
+            request.Properties.TryGetValue(ProgressContextIdProperty, out progressContextId);
+
+            return (string)progressContextId;
+        }
+
+        /// <summary>
+        ///     Set the Id of the <see cref="ProgressContext"/> (if any) that the request is associated with.
+        /// </summary>
+        /// <param name="request">
+        ///     The HTTP request message.
+        /// </param>
+        /// <param name="progressContextId">
+        ///     The progress context Id.
+        /// </param>
+        public static void SetProgressContextId(this HttpRequestMessage request, string progressContextId)
+        {
+            request.Properties[ProgressContextIdProperty] = progressContextId;
+        }
+
+        /// <summary>
+        ///     Get the Id of the <see cref="ProgressContext"/> (if any) that the response is associated with.
+        /// </summary>
+        /// <param name="response">
+        ///     The HTTP response message.
+        /// </param>
+        /// <returns>
+        ///     The progress context Id, or <c>null</c> if the response is not associated with a progress context
+        /// </returns>
+        public static string GetProgressContextId(this HttpResponseMessage response)
+        {
+            // Context comes from the original request message.
+            HttpRequestMessage request = response.RequestMessage;
+            if (request == null)
+                return null;
+
+            return request.GetProgressContextId();
         }
     }
 }
