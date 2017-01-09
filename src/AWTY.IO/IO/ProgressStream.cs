@@ -6,7 +6,7 @@ namespace AWTY.IO
     /// <summary>
     ///     A <see cref="Stream"/> that wraps an inner <see cref="Stream"/>, adding progress reporting.
     /// </summary>
-    public class ProgressStream2
+    public class ProgressStream
         : Stream
     {
         /// <summary>
@@ -22,10 +22,10 @@ namespace AWTY.IO
         /// <summary>
         ///     The sink used to report stream progress.
         /// </summary>
-        readonly IProgressSink2<long>    _sink;
+        readonly IProgressSink<long>    _sink;
 
         /// <summary>
-        ///     Create a new <see cref="ProgressStream2"/> that wraps the specified inner <see cref="Stream"/>.
+        ///     Create a new <see cref="ProgressStream"/> that wraps the specified inner <see cref="Stream"/>.
         /// </summary>
         /// <param name="innerStream">
         ///     The inner stream.
@@ -36,12 +36,12 @@ namespace AWTY.IO
         /// <param name="sink">
         ///     The sink used to report stream progress.
         /// </param>
-        public ProgressStream2(Stream innerStream, StreamDirection streamDirection, IProgressSink2<long> sink)
+        public ProgressStream(Stream innerStream, StreamDirection streamDirection, IProgressSink<long> sink)
         {
             if (innerStream == null)
                 throw new ArgumentNullException(nameof(innerStream));
 
-            if (innerStream is ProgressStream2)
+            if (innerStream is ProgressStream)
                 throw new InvalidOperationException("Wrapping a ProgressStream2 in another ProgressStream2 is not currently supported.");
 
             if (streamDirection == StreamDirection.Unknown)

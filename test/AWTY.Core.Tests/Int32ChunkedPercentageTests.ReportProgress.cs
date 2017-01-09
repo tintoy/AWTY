@@ -8,12 +8,12 @@ namespace AWTY.Core.Tests
     using Strategies;
 
     /// <summary>
-    ///     Tests for the <see cref="Int32ChunkedPercentageStrategy2"/> progress-notification strategy.
+    ///     Tests for the <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy.
     /// </summary>
     public partial class Int32ChunkedPercentageTests
     {
         /// <summary>
-        ///     Report progress to a <see cref="Int32ChunkedPercentageStrategy2"/> progress-notification strategy.
+        ///     Report progress to a <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy.
         /// </summary>
         /// <param name="total">
         ///     The total value against which progress is measured.
@@ -33,7 +33,7 @@ namespace AWTY.Core.Tests
         {
             List<int> actualPercentages = new List<int>();
             
-            ProgressStrategy2<int> strategy = ProgressStrategy2.PercentComplete.Chunked.Int32(chunkSize);
+            ProgressStrategy<int> strategy = ProgressStrategy.PercentComplete.Chunked.Int32(chunkSize);
             strategy.Subscribe(progress =>
             {
                 actualPercentages.Add(progress.PercentComplete);

@@ -16,9 +16,9 @@ namespace AWTY.IO.Tests
         /// <returns>
         ///     The configured <see cref="IProgressStrategy{TValue}"/>.
         /// </returns>
-        public ProgressStrategy2<long> ChunkedPercentage(int chunkSize)
+        public ProgressStrategy<long> ChunkedPercentage(int chunkSize)
         {
-            return ProgressStrategy2.PercentComplete.Chunked.Int64(chunkSize);
+            return ProgressStrategy.PercentComplete.Chunked.Int64(chunkSize);
         }
     }
 }

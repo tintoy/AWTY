@@ -8,7 +8,7 @@ namespace AWTY
     /// <typeparam name="TValue">
     ///     The type of value used to represent progress.
     /// </typeparam>
-    public interface IProgressSink2<TValue>
+    public interface IProgressSink<TValue>
         : IObservable<RawProgressData<TValue>>
         where TValue : IEquatable<TValue>, IComparable<TValue>
     {

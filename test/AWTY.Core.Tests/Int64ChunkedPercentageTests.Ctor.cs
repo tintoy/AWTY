@@ -13,7 +13,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Ctor_ChunkSize_5()
         {
-            Int64ChunkedPercentageStrategy2 strategy = new Int64ChunkedPercentageStrategy2(chunkSize: 5);
+            Int64ChunkedPercentageStrategy strategy = new Int64ChunkedPercentageStrategy(chunkSize: 5);
             Assert.Equal(5, strategy.ChunkSize);
         }
 
@@ -21,7 +21,7 @@ namespace AWTY.Core.Tests
         public void Ctor_ChunkSize_0()
         {
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => new Int64ChunkedPercentageStrategy2(chunkSize: 0)
+                () => new Int64ChunkedPercentageStrategy(chunkSize: 0)
             );
         }
     }

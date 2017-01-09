@@ -5,7 +5,7 @@ namespace AWTY
     /// <summary>
     ///     Well-known progress strategies.
     /// </summary>
-    public static partial class ProgressStrategy2
+    public static partial class ProgressStrategy
     {
         /// <summary>
         ///     Progress strategies that never notify.
@@ -15,12 +15,12 @@ namespace AWTY
             /// <summary>
             ///     A progress strategy for 32-bit integer values that never notifies.
             /// </summary>
-            public static ProgressStrategy2<int> Int32() => new Never32();
+            public static ProgressStrategy<int> Int32() => new Never32();
 
             /// <summary>
             ///     A progress strategy for 64-bit integer values that never notifies.
             /// </summary>
-            public static ProgressStrategy2<long> Int64() => new Never64();
+            public static ProgressStrategy<long> Int64() => new Never64();
         }
 
 #pragma warning disable CS0067
@@ -29,7 +29,7 @@ namespace AWTY
         ///     A 32-bit integer progress-notification strategy that never reports progress.
         /// </summary>
         sealed class Never32
-            : ProgressStrategy2<int>
+            : ProgressStrategy<int>
         {
             /// <summary>
             ///     Default constructor.
@@ -57,7 +57,7 @@ namespace AWTY
         ///     A 32-bit integer progress-notification strategy that never reports progress.
         /// </summary>
         sealed class Never64
-            : ProgressStrategy2<long>
+            : ProgressStrategy<long>
         {
             /// <summary>
             ///     Default constructor.

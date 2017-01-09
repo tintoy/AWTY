@@ -8,7 +8,7 @@ namespace AWTY.IO.Tests
     using Core.Strategies;
     
     /// <summary>
-    ///     Tests for <see cref="ProgressStream2"/>.
+    ///     Tests for <see cref="ProgressStream"/>.
     /// </summary>
     public class ProgressStream2Tests
         : IClassFixture<StrategyFactory>, IClassFixture<StreamFactory>
@@ -24,7 +24,7 @@ namespace AWTY.IO.Tests
         readonly StreamFactory _streams;
 
         /// <summary>
-        ///     Create a new <see cref="ProgressStream2"/> test suite.
+        ///     Create a new <see cref="ProgressStream"/> test suite.
         /// </summary>
         /// <param name="strategies">
         ///     The factory for progress notification strategies used in tests.
@@ -59,14 +59,14 @@ namespace AWTY.IO.Tests
         {
             List<int> actualPercentages = new List<int>();
 
-            ProgressStrategy2<long> strategy = _strategies.ChunkedPercentage(chunkSize);
+            ProgressStrategy<long> strategy = _strategies.ChunkedPercentage(chunkSize);
             strategy.Subscribe(progress =>
             {
                 actualPercentages.Add(progress.PercentComplete);
             });
             
             using (MemoryStream input = _streams.FillMemoryStream(total))
-            using (ProgressStream2 progressStream = input.WithReadProgress(strategy))
+            using (ProgressStream progressStream = input.WithReadProgress(strategy))
             {
                 byte[] buffer = new byte[increment];
                 int bytesRead = 0;

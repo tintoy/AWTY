@@ -15,7 +15,7 @@ namespace AWTY.Core.Tests
     public class ReactiveTests
     {
         /// <summary>
-        ///     Report progress directly to a <see cref="Int32ChunkedPercentageStrategy2"/> progress-notification strategy.
+        ///     Report progress directly to a <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy.
         /// </summary>
         /// <param name="total">
         ///     The total value against which progress is measured.
@@ -35,7 +35,7 @@ namespace AWTY.Core.Tests
         {
             List<int> actualPercentages = new List<int>();
             
-            Int32ChunkedPercentageStrategy2 strategy = new Int32ChunkedPercentageStrategy2(chunkSize);
+            Int32ChunkedPercentageStrategy strategy = new Int32ChunkedPercentageStrategy(chunkSize);
             strategy.Subscribe(progressData =>
             {
                 actualPercentages.Add(progressData.PercentComplete);
@@ -54,7 +54,7 @@ namespace AWTY.Core.Tests
         }
 
         /// <summary>
-        ///     Report progress to a <see cref="Int32ChunkedPercentageStrategy2"/> progress-notification strategy via an <see cref="Int32ProgressSink2"/>.
+        ///     Report progress to a <see cref="Int32ChunkedPercentageStrategy"/> progress-notification strategy via an <see cref="Int32ProgressSink"/>.
         /// </summary>
         /// <param name="total">
         ///     The total value against which progress is measured.
@@ -74,13 +74,13 @@ namespace AWTY.Core.Tests
         {
             List<int> actualPercentages = new List<int>();
             
-            Int32ChunkedPercentageStrategy2 strategy = new Int32ChunkedPercentageStrategy2(chunkSize);
+            Int32ChunkedPercentageStrategy strategy = new Int32ChunkedPercentageStrategy(chunkSize);
             strategy.Subscribe(progressData =>
             {
                 actualPercentages.Add(progressData.PercentComplete);
             });
 
-            Int32ProgressSink2 sink = new Int32ProgressSink2(total: total);
+            Int32ProgressSink sink = new Int32ProgressSink(total: total);
             sink.Subscribe(strategy);
             
             int iterationCount = total / increment;

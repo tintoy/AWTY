@@ -5,36 +5,36 @@ using System.Threading;
 namespace AWTY.Core.Sinks
 {
     /// <summary>
-    ///     A sink for reporting progress as a 32-bit integer.
+    ///     A sink for reporting progress as a 64-bit integer.
     /// </summary>
-    public sealed class Int32ProgressSink2
-        : IProgressSink2<int>, IDisposable
+    public sealed class Int64ProgressSink
+        : IProgressSink<long>, IDisposable
     {
         /// <summary>
         ///     The subject used to publish raw progress data.
         /// </summary>
-        readonly Subject<RawProgressData<int>>   _rawDataSubject = new Subject<RawProgressData<int>>();
+        readonly Subject<RawProgressData<long>>   _rawDataSubject = new Subject<RawProgressData<long>>();
 
         /// <summary>
         ///     The current progress value.
         /// </summary>
-        int                                      _current;
+        long                                      _current;
 
         /// <summary>
         ///     The total value against which progress is measured.
         /// </summary>
-        int                                      _total;
+        long                                      _total;
 
         /// <summary>
-        ///     Create a new <see cref="Int32ProgressSink2"/> with a <see cref="Total"/> of 100.
+        ///     Create a new <see cref="Int64ProgressSink"/> with a <see cref="Total"/> of 100.
         /// </summary>
-        public Int32ProgressSink2()
+        public Int64ProgressSink()
             : this(total: 100)
         {
         }
 
         /// <summary>
-        ///     Create a new <see cref="Int32ProgressSink2"/>.
+        ///     Create a new <see cref="Int64ProgressSink"/>.
         /// </summary>
         /// <param name="total">
         ///     The initial progress total.
@@ -42,7 +42,7 @@ namespace AWTY.Core.Sinks
         /// <exception cref="ArgumentOutOfRangeException">
         ///     <paramref name="total"/> is less than 1.
         /// </exception>
-        public Int32ProgressSink2(int total)
+        public Int64ProgressSink(long total)
         {
             if (total < 1)
                 throw new ArgumentOutOfRangeException(nameof(total), total, "Progress total cannot be less than 1.");
@@ -61,7 +61,7 @@ namespace AWTY.Core.Sinks
         /// <summary>
         ///     The current progress value.
         /// </summary>
-        public int Current => _current;
+        public long Current => _current;
 
         /// <summary>
         ///     The total value against which progress is measured.
@@ -69,7 +69,7 @@ namespace AWTY.Core.Sinks
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Attempted to set a value less than 1.
         /// </exception>
-        public int Total
+        public long Total
         {
             get
             {
@@ -80,9 +80,9 @@ namespace AWTY.Core.Sinks
                 if (value < 1)
                     throw new ArgumentOutOfRangeException(nameof(Total), value, "Progress total cannot be less than 1.");
 
-                int current = _current;
+                long current = _current;
 
-                int total = Interlocked.Exchange(ref _total, value);
+                long total = Interlocked.Exchange(ref _total, value);
                 PublishRawData(current, total);
             }
         }
@@ -93,11 +93,11 @@ namespace AWTY.Core.Sinks
         /// <returns>
         ///     The updated progress value.
         /// </returns>
-        public int Add(int value)
+        public long Add(long value)
         {
-            int total = _total;
+            long total = _total;
 
-            int current = Interlocked.Add(ref _current, value);
+            long current = Interlocked.Add(ref _current, value);
             PublishRawData(current, total);
 
             return current;
@@ -109,10 +109,10 @@ namespace AWTY.Core.Sinks
         /// <returns>
         ///     The updated progress value.
         /// </returns>
-        public int Subtract(int value)
+        public long Subtract(long value)
         {
-            int total = _total;
-            int current = Interlocked.Add(ref _current, -value);
+            long total = _total;
+            long current = Interlocked.Add(ref _current, -value);
             PublishRawData(current, total);
 
             return current;
@@ -123,8 +123,8 @@ namespace AWTY.Core.Sinks
         /// </summary>
         public void Reset()
         {
-            int total = _total;
-            int previous = Interlocked.Exchange(ref _current, 0);
+            long total = _total;
+            long previous = Interlocked.Exchange(ref _current, 0);
             PublishRawData(0, total);
         }
 
@@ -137,7 +137,7 @@ namespace AWTY.Core.Sinks
         /// <returns>
         ///     An <see cref="IDisposable"/> representing the subscription.
         /// </returns>
-        public IDisposable Subscribe(IObserver<RawProgressData<int>> observer)
+        public IDisposable Subscribe(IObserver<RawProgressData<long>> observer)
         {
             return _rawDataSubject.Subscribe(observer);
         }
@@ -151,7 +151,7 @@ namespace AWTY.Core.Sinks
         /// <param name="total">
         ///     The total value against which progress is measured.
         /// </param>
-        void PublishRawData(int current, int total)
+        void PublishRawData(long current, long total)
         {
             _rawDataSubject.OnNext(
                 RawProgressData.Create(current, total)

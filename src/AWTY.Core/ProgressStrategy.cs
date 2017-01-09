@@ -7,7 +7,7 @@ namespace AWTY
     /// <summary>
     ///     Well-known progress notification strategies.
     /// </summary>
-    public static partial class ProgressStrategy2
+    public static partial class ProgressStrategy
     {
         /// <summary>
         ///     Well-known progress notification strategies that determine when to notify based on percentage completion.
@@ -28,7 +28,7 @@ namespace AWTY
                 /// <returns>
                 ///     The new <see cref="IObserver{TValue}"/>.
                 /// </returns>
-                public static ProgressStrategy2<int> Int32(int chunkSize) => new Int32ChunkedPercentageStrategy2(chunkSize);
+                public static ProgressStrategy<int> Int32(int chunkSize) => new Int32ChunkedPercentageStrategy(chunkSize);
 
                 /// <summary>
                 ///     Create a new chunked percentage progress notification strategy.
@@ -39,7 +39,7 @@ namespace AWTY
                 /// <returns>
                 ///     The new <see cref="IObserver{TValue}"/>.
                 /// </returns>
-                public static ProgressStrategy2<long> Int64(int chunkSize) => new Int64ChunkedPercentageStrategy2(chunkSize);
+                public static ProgressStrategy<long> Int64(int chunkSize) => new Int64ChunkedPercentageStrategy(chunkSize);
             }
         }
     }

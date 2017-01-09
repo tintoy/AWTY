@@ -6,7 +6,7 @@ namespace AWTY.Core.Strategies
     /// <summary>
     ///     The base class for progress-notification strategies.
     /// </summary>
-    public abstract class ProgressStrategy2<TValue>
+    public abstract class ProgressStrategy<TValue>
         : IObserver<RawProgressData<TValue>>, IObservable<ProgressData<TValue>>, IDisposable
         where TValue : IEquatable<TValue>, IComparable<TValue>
     {
@@ -18,14 +18,14 @@ namespace AWTY.Core.Strategies
         /// <summary>
         ///     Create a new progress strategy.
         /// </summary>
-        protected ProgressStrategy2()
+        protected ProgressStrategy()
         {
         }
 
         /// <summary>
-        ///     Finaliser for <see cref="ProgressStrategy2{TValue}"/>.
+        ///     Finaliser for <see cref="ProgressStrategy{TValue}"/>.
         /// </summary>
-        ~ProgressStrategy2()
+        ~ProgressStrategy()
         {
             Dispose(false);
         }

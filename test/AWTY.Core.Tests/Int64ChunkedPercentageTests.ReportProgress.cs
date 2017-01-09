@@ -33,7 +33,7 @@ namespace AWTY.Core.Tests
         {
             List<int> actualPercentages = new List<int>();
             
-            ProgressStrategy2<long> strategy = ProgressStrategy2.PercentComplete.Chunked.Int64(chunkSize);
+            ProgressStrategy<long> strategy = ProgressStrategy.PercentComplete.Chunked.Int64(chunkSize);
             strategy.Subscribe(progress =>
             {
                 actualPercentages.Add(progress.PercentComplete);
