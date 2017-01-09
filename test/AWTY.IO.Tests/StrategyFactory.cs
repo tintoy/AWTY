@@ -1,5 +1,7 @@
 namespace AWTY.IO.Tests
 {
+    using Core.Strategies;
+
     /// <summary>
     ///     Factory for progress strategies used in tests.
     /// </summary>
@@ -14,9 +16,9 @@ namespace AWTY.IO.Tests
         /// <returns>
         ///     The configured <see cref="IProgressStrategy{TValue}"/>.
         /// </returns>
-        public IProgressStrategy<long> ChunkedPercentage(int chunkSize)
+        public ProgressStrategy2<long> ChunkedPercentage(int chunkSize)
         {
-            return ProgressStrategy.PercentComplete.Chunked.Int64(chunkSize);
+            return ProgressStrategy2.PercentComplete.Chunked.Int64(chunkSize);
         }
     }
 }

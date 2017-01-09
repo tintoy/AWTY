@@ -8,10 +8,10 @@ namespace AWTY.IO
     /// <summary>
     ///     Progress-related extensions for streams.
     /// </summary>
-    public static class StreamExtensions
+    public static class StreamExtensions2
     {
         /// <summary>
-        ///     Wrap the specified stream in a <see cref="ProgressStream"/> that will report progress for reads.
+        ///     Wrap the specified stream in a <see cref="ProgressStream2"/> that will report progress for reads.
         /// </summary>
         /// <param name="stream">
         ///     The stream to wrap.
@@ -25,12 +25,12 @@ namespace AWTY.IO
         ///     If not specified, the stream length is used.
         /// </param>
         /// <returns>
-        ///     The new <see cref="ProgressStream"/>.
+        ///     The new <see cref="ProgressStream2"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">
-        ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
+        ///     The <paramref name="stream"/> is already a <see cref="ProgressStream2"/>.
         /// </exception>
-        public static ProgressStream WithReadProgress(this Stream stream, IProgressStrategy<long> strategy, long? total = null)
+        public static ProgressStream2 WithReadProgress(this Stream stream, IObserver<RawProgressData<long>> strategy, long? total = null)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
@@ -38,17 +38,17 @@ namespace AWTY.IO
             if (strategy == null)
                 throw new ArgumentNullException(nameof(strategy));
 
-            Int64ProgressSink sink;
+            Int64ProgressSink2 sink = new Int64ProgressSink2();
             if (total.HasValue)
-                sink = new Int64ProgressSink(strategy, total.Value);
-            else
-                sink = new Int64ProgressSink(strategy);
+                sink.Total = total.Value;
 
-            return new ProgressStream(stream, StreamDirection.Read, new Int64ProgressSink(strategy));
+            sink.Subscribe(strategy);
+
+            return new ProgressStream2(stream, StreamDirection.Read, sink);
         }
 
         /// <summary>
-        ///     Wrap the specified stream in a <see cref="ProgressStream"/> that will report progress for writes.
+        ///     Wrap the specified stream in a <see cref="ProgressStream2"/> that will report progress for writes.
         /// </summary>
         /// <param name="stream">
         ///     The stream to wrap.
@@ -60,12 +60,12 @@ namespace AWTY.IO
         ///     The total used to calculate progress.
         /// </param>
         /// <returns>
-        ///     The new <see cref="ProgressStream"/>.
+        ///     The new <see cref="ProgressStream2"/>.
         /// </returns>
         /// <exception cref="InvalidOperationException">
-        ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
+        ///     The <paramref name="stream"/> is already a <see cref="ProgressStream2"/>.
         /// </exception>
-        public static ProgressStream WithWriteProgress(this Stream stream, IProgressStrategy<long> strategy, long total)
+        public static ProgressStream2 WithWriteProgress(this Stream stream, IObserver<RawProgressData<long>> strategy, long total)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
@@ -73,7 +73,10 @@ namespace AWTY.IO
             if (strategy == null)
                 throw new ArgumentNullException(nameof(strategy));
 
-            return new ProgressStream(stream, StreamDirection.Write, new Int64ProgressSink(strategy, total));
+            Int64ProgressSink2 sink = new Int64ProgressSink2(total);
+            sink.Subscribe(strategy);
+
+            return new ProgressStream2(stream, StreamDirection.Write, sink);
         }
     }
 }

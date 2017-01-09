@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
 namespace AWTY.IO.Tests
 {
+    using Core.Strategies;
+    
     /// <summary>
-    ///     Tests for <see cref="ProgressStream"/>.
+    ///     Tests for <see cref="ProgressStream2"/>.
     /// </summary>
-    public class ProgressStreamTests
+    public class ProgressStream2Tests
         : IClassFixture<StrategyFactory>, IClassFixture<StreamFactory>
     {
         /// <summary>
@@ -21,7 +24,7 @@ namespace AWTY.IO.Tests
         readonly StreamFactory _streams;
 
         /// <summary>
-        ///     Create a new <see cref="ProgressStream"/> test suite.
+        ///     Create a new <see cref="ProgressStream2"/> test suite.
         /// </summary>
         /// <param name="strategies">
         ///     The factory for progress notification strategies used in tests.
@@ -29,14 +32,14 @@ namespace AWTY.IO.Tests
         /// <param name="streams">
         ///     The factory for streams used in tests.
         /// </param>
-        public ProgressStreamTests(StrategyFactory strategies, StreamFactory streams)
+        public ProgressStream2Tests(StrategyFactory strategies, StreamFactory streams)
         {
             _strategies = strategies;
             _streams = streams;
         }
 
         /// <summary>
-        ///     Read bytes via a ProgressStream using a chunked percentage strategy.
+        ///     Read bytes via a ProgressStream2 using a chunked percentage strategy.
         /// </summary>
         /// <param name="total">
         ///     The total number of bytes in the stream.
@@ -56,19 +59,20 @@ namespace AWTY.IO.Tests
         {
             List<int> actualPercentages = new List<int>();
 
-            using (MemoryStream input = _streams.FillMemoryStream(total))
-            using (ProgressStream progress = input.WithReadProgress(_strategies.ChunkedPercentage(chunkSize)))
+            ProgressStrategy2<long> strategy = _strategies.ChunkedPercentage(chunkSize);
+            strategy.Subscribe(progress =>
             {
-                progress.ProgressChanged += (sender, args) =>
-                {
-                    actualPercentages.Add(args.PercentComplete);
-                };
-
+                actualPercentages.Add(progress.PercentComplete);
+            });
+            
+            using (MemoryStream input = _streams.FillMemoryStream(total))
+            using (ProgressStream2 progressStream = input.WithReadProgress(strategy))
+            {
                 byte[] buffer = new byte[increment];
                 int bytesRead = 0;
                 do
                 {
-                    bytesRead = progress.Read(buffer, offset: 0, count: buffer.Length);
+                    bytesRead = progressStream.Read(buffer, offset: 0, count: buffer.Length);
                 } while(bytesRead > 0);
             }
 
