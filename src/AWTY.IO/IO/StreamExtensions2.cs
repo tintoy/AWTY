@@ -17,7 +17,7 @@ namespace AWTY.IO
         ///     The stream to wrap.
         /// </param>
         /// <param name="strategy">
-        ///     The <see cref="IProgressStrategy{TValue}"/> used to determine when stream progress should be reported.
+        ///     The <see cref="IObserver{TValue}"/> used to determine when stream progress should be reported.
         /// </param>
         /// <param name="total">
         ///     An optional total used to calculate progress.
@@ -54,7 +54,7 @@ namespace AWTY.IO
         ///     The stream to wrap.
         /// </param>
         /// <param name="strategy">
-        ///     The <see cref="IProgressStrategy{TValue}"/> used to determine when stream progress should be reported.
+        ///     The <see cref="IObserver{TValue}"/> used to determine when stream progress should be reported.
         /// </param>
         /// <param name="total">
         ///     The total used to calculate progress.

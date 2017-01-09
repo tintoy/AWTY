@@ -24,7 +24,7 @@ namespace AWTY.Core.Strategies
         int             _currentPercentComplete;
 
         /// <summary>
-        ///     Create a new <see cref="Int64ChunkedPercentageStrategy"/> progress-notification strategy.
+        ///     Create a new <see cref="Int64ChunkedPercentageStrategy2"/> progress-notification strategy.
         /// </summary>
         /// <param name="chunkSize">
         ///     The minimum change in percentage completion to report.

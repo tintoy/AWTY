@@ -1,3 +1,5 @@
+using System;
+
 namespace AWTY
 {
     using Core.Strategies;
@@ -24,7 +26,7 @@ namespace AWTY
                 ///     The minimum change in percentage completion to report.
                 /// </param>
                 /// <returns>
-                ///     The new <see cref="IProgressStrategy{TValue}"/>.
+                ///     The new <see cref="IObserver{TValue}"/>.
                 /// </returns>
                 public static ProgressStrategy2<int> Int32(int chunkSize) => new Int32ChunkedPercentageStrategy2(chunkSize);
 
@@ -35,7 +37,7 @@ namespace AWTY
                 ///     The minimum change in percentage completion to report.
                 /// </param>
                 /// <returns>
-                ///     The new <see cref="IProgressStrategy{TValue}"/>.
+                ///     The new <see cref="IObserver{TValue}"/>.
                 /// </returns>
                 public static ProgressStrategy2<long> Int64(int chunkSize) => new Int64ChunkedPercentageStrategy2(chunkSize);
             }
