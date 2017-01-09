@@ -3,6 +3,8 @@ using System.IO;
 
 namespace AWTY.IO
 {
+    using Core.Sinks;
+
     /// <summary>
     ///     A <see cref="Stream"/> that wraps an inner <see cref="Stream"/>, adding progress reporting.
     /// </summary>
@@ -35,16 +37,49 @@ namespace AWTY.IO
         /// <param name="innerStream">
         ///     The inner stream.
         /// </param>
-        /// <param name="ownsStream">
-        ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
+        /// <param name="streamDirection">
+        ///     The direction in which the stream's data is expected to flow.
+        /// </param>
+        public ProgressStream(Stream innerStream, StreamDirection streamDirection)
+            : this(innerStream, streamDirection, true)
+        {
+        }
+
+        /// <summary>
+        ///     Create a new <see cref="ProgressStream"/> that wraps the specified inner <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="innerStream">
+        ///     The inner stream.
         /// </param>
         /// <param name="streamDirection">
         ///     The direction in which the stream's data is expected to flow.
         /// </param>
+        /// <param name="ownsStream">
+        ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
+        /// </param>
+        public ProgressStream(Stream innerStream, StreamDirection streamDirection, bool ownsStream)
+            : this(innerStream, streamDirection, ownsStream, new Int64ProgressSink())
+        {
+            if (_innerStream.CanSeek)
+                _sink.Total = _innerStream.Length; // AF: What about position?
+        }
+
+        /// <summary>
+        ///     Create a new <see cref="ProgressStream"/> that wraps the specified inner <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="innerStream">
+        ///     The inner stream.
+        /// </param>
+        /// <param name="streamDirection">
+        ///     The direction in which the stream's data is expected to flow.
+        /// </param>
+        /// <param name="ownsStream">
+        ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
+        /// </param>
         /// <param name="sink">
         ///     The sink used to report stream progress.
         /// </param>
-        public ProgressStream(Stream innerStream, bool ownsStream, StreamDirection streamDirection, IProgressSink<long> sink)
+        public ProgressStream(Stream innerStream, StreamDirection streamDirection, bool ownsStream, IProgressSink<long> sink)
         {
             if (innerStream == null)
                 throw new ArgumentNullException(nameof(innerStream));
@@ -121,7 +156,10 @@ namespace AWTY.IO
         /// </summary>
         public StreamDirection StreamDirection => _streamDirection;
 
-        
+        /// <summary>
+        ///     An <see cref="IObservable{T}"/> that can be used to observe raw progress data.
+        /// </summary>
+        public IObservable<RawProgressData<long>> Progress => _sink;
 
         /// <summary>
         ///     Flush the stream.

@@ -9,18 +9,40 @@ This is a work-in-progress (the API is fairly unstable at the moment); please ch
 AWTY encapsulates the logic for _when_ to report progress into [progress strategies](src/AWTY.Core/Core/Strategies/ProgressStrategy.cs).
 For example, [Int32ChunkedPercentageStrategy](src/AWTY.Core/Core/Strategies/Int32ChunkedPercentageStrategy.cs) only reports progress when the percentage of completion has changed by more than the specified value.
 
-### Example
+### Examples
 
-To only report progress for every change of 5 percent or more when data is read from a stream:
+#### Progress for reading from a FileStream
+
+To only report progress for every change of 5 percent or more when data is read from a `FileStream`:
 
 ```csharp
-ProgressStrategy<long> strategy = ProgressStrategy.Percentage.Chunked.Int64(5);
-strategy.Subscribe(progress =>
+using (ProgressStream stream = new FileStream("foo.txt").WithReadProgress(progressObserver))
+{
+    stream.Progress.Percentage(minChange: 5).Subscribe(progress =>
+    {
+        Console.WriteLine("Progress: {0}%", progress.PercentComplete);
+    });
+
+    // Read from stream.
+}
+```
+
+#### Progress for reading from a FileStream
+
+To only report progress for every change of 5 percent or more when the content is read from an HttpClient response:
+
+```csharp
+ProgressStrategy<long> progressObserver = ProgressStrategy.Percentage.Chunked.Int64(5);
+progressObserver.Subscribe(progress =>
 {
     Console.WriteLine("Progress: {0}%", progress.PercentComplete);
 });
-using (ProgressStream stream = new FileStream("foo.txt").WithReadProgress(strategy))
+
+HttpClient client = new HttpClient();
+using (HttpResponseMessage response = await client.GetAsync("http://www.google.com/").WithProgress(progressObserver))
 {
-    // Read from stream.
+    Console.WriteLine(
+        await response.Content.ReadAsStringAsync()
+    );
 }
 ```

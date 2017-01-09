@@ -1,9 +1,10 @@
 using System;
 using System.IO;
 
-namespace AWTY.IO
+namespace AWTY
 {
     using Core.Sinks;
+    using IO;
 
     /// <summary>
     ///     Progress-related extensions for streams.
@@ -16,13 +17,13 @@ namespace AWTY.IO
         /// <param name="stream">
         ///     The stream to wrap.
         /// </param>
-        /// <param name="progressObserver">
-        ///     The <see cref="IObserver{TValue}"/> that receives raw progress data.
-        /// </param>
         /// <param name="total">
         ///     An optional total used to calculate progress.
         ///
         ///     If not specified, the stream length is used (providing the stream supports seeking).
+        /// </param>
+        /// <param name="progressObserver">
+        ///     An optional <see cref="IObserver{TValue}"/> that receives raw progress data.
         /// </param>
         /// <param name="ownsStream">
         ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
@@ -34,13 +35,10 @@ namespace AWTY.IO
         ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
         ///     <paramref name="total"/> was not specified, and the stream does not support seeking.
         /// </exception>
-        public static ProgressStream WithReadProgress(this Stream stream, IObserver<RawProgressData<long>> progressObserver, long? total = null, bool ownsStream = true)
+        public static ProgressStream WithReadProgress(this Stream stream, long? total = null, IObserver<RawProgressData<long>> progressObserver = null, bool ownsStream = true)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
-
-            if (progressObserver == null)
-                throw new ArgumentNullException(nameof(progressObserver));
 
             Int64ProgressSink sink = new Int64ProgressSink();
             if (total.HasValue)
@@ -50,9 +48,10 @@ namespace AWTY.IO
             else
                 throw new InvalidOperationException("Total was not specified, and cannot be auto-detected because the specified stream does not support seeking.");
 
-            sink.Subscribe(progressObserver);
+            if (progressObserver != null)
+                sink.Subscribe(progressObserver);
 
-            return new ProgressStream(stream, ownsStream, StreamDirection.Read, sink);
+            return new ProgressStream(stream, StreamDirection.Read, ownsStream, sink);
         }
 
         /// <summary>
@@ -61,11 +60,11 @@ namespace AWTY.IO
         /// <param name="stream">
         ///     The stream to wrap.
         /// </param>
-        /// <param name="progressObserver">
-        ///     The <see cref="IObserver{TValue}"/> that receives raw progress data.
-        /// </param>
         /// <param name="total">
         ///     The total used to calculate progress.
+        /// </param>
+        /// <param name="progressObserver">
+        ///     An optional <see cref="IObserver{TValue}"/> that receives raw progress data.
         /// </param>
         /// <param name="ownsStream">
         ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
@@ -76,18 +75,16 @@ namespace AWTY.IO
         /// <exception cref="InvalidOperationException">
         ///     The <paramref name="stream"/> is already a <see cref="ProgressStream"/>.
         /// </exception>
-        public static ProgressStream WithWriteProgress(this Stream stream, IObserver<RawProgressData<long>> progressObserver, long total, bool ownsStream = true)
+        public static ProgressStream WithWriteProgress(this Stream stream, long total, IObserver<RawProgressData<long>> progressObserver = null, bool ownsStream = true)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            if (progressObserver == null)
-                throw new ArgumentNullException(nameof(progressObserver));
-
             Int64ProgressSink sink = new Int64ProgressSink(total);
-            sink.Subscribe(progressObserver);
+            if (progressObserver != null)
+                sink.Subscribe(progressObserver);
 
-            return new ProgressStream(stream, ownsStream, StreamDirection.Write, sink);
+            return new ProgressStream(stream, StreamDirection.Write, ownsStream, sink);
         }
     }
 }

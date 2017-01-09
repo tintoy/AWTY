@@ -5,8 +5,6 @@ using Xunit;
 
 namespace AWTY.IO.Tests
 {
-    using Core.Strategies;
-    
     /// <summary>
     ///     Tests for <see cref="ProgressStream"/>.
     /// </summary>
@@ -59,15 +57,14 @@ namespace AWTY.IO.Tests
         {
             List<int> actualPercentages = new List<int>();
 
-            ProgressStrategy<long> strategy = _strategies.ChunkedPercentage(chunkSize);
-            strategy.Subscribe(progress =>
-            {
-                actualPercentages.Add(progress.PercentComplete);
-            });
-            
             using (MemoryStream input = _streams.FillMemoryStream(total))
-            using (ProgressStream progressStream = input.WithReadProgress(strategy))
+            using (ProgressStream progressStream = input.WithReadProgress())
             {
+                progressStream.Progress.Percentage(chunkSize).Subscribe(progress =>
+                {
+                    actualPercentages.Add(progress.PercentComplete);
+                });
+
                 byte[] buffer = new byte[increment];
                 int bytesRead = 0;
                 do

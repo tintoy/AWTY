@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace AWTY.Http
 {
+    using Core.Sinks;
     using IO;
 
     /// <summary>
@@ -29,9 +30,9 @@ namespace AWTY.Http
         StreamDirection                     _direction;
 
         /// <summary>
-        ///     The observer which will receive raw progress data.
+        ///     The sink which will receive raw progress data.
         /// </summary>
-        IObserver<RawProgressData<long>>    _progressObserver;
+        IProgressSink<long>                _sink;
 
         /// <summary>
         ///     Create new progress content.
@@ -42,20 +43,34 @@ namespace AWTY.Http
         /// <param name="direction">
         ///     The expected stream direction.
         /// </param>
-        /// <param name="progressObserver">
-        ///     The observer which will receive raw progress data.
+        public ProgressContent(HttpContent innerContent, StreamDirection direction)
+            : this(innerContent, direction, new Int64ProgressSink())
+        {
+        }
+
+        /// <summary>
+        ///     Create new progress content.
+        /// </summary>
+        /// <param name="innerContent">
+        ///     The inner <see cref="HttpContent"/>.
         /// </param>
-        public ProgressContent(HttpContent innerContent, StreamDirection direction, IObserver<RawProgressData<long>> progressObserver)
+        /// <param name="direction">
+        ///     The expected stream direction.
+        /// </param>
+        /// <param name="sink">
+        ///     The sink which will receive raw progress data.
+        /// </param>
+        public ProgressContent(HttpContent innerContent, StreamDirection direction, IProgressSink<long> sink)
         {
             if (innerContent == null)
                 throw new ArgumentNullException(nameof(innerContent));
 
-            if (progressObserver == null)
-                throw new ArgumentNullException(nameof(progressObserver));
+            if (sink == null)
+                throw new ArgumentNullException(nameof(sink));
 
             _innerContent = innerContent;
             _direction = direction;
-            _progressObserver = progressObserver;
+            _sink = sink;
 
             LoadHeaders();
         }
@@ -73,6 +88,11 @@ namespace AWTY.Http
         }
 
         /// <summary>
+        ///     An <see cref="IObservable{T}"/> that can be used to observe raw progress data.
+        /// </summary>
+        public IObservable<RawProgressData<long>> Progress => _sink;
+
+        /// <summary>
         ///     Serialise the HTTP content to a stream as an asynchronous operation.
         /// </summary>
         /// <param name="stream">
@@ -86,26 +106,19 @@ namespace AWTY.Http
         /// </returns>
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
+            // Must know the content length to report progress.
             if (Headers.ContentLength.HasValue)
             {
-                ProgressStream progressStream;
-                if (_direction == StreamDirection.Read)
-                {
-                    progressStream = stream.WithReadProgress(_progressObserver,
-                        total:Headers.ContentLength.Value,
-                        ownsStream: false
-                    );
-                }
-                else
-                {
-                    progressStream = stream.WithWriteProgress(_progressObserver,
-                        total:Headers.ContentLength.Value,
-                        ownsStream: false
-                    );
-                }
-
+                ProgressStream progressStream = new ProgressStream(stream, _direction,
+                    ownsStream: false,
+                    sink: _sink
+                );
                 using (progressStream)
                 {
+                    long total;
+                    if (TryComputeLength(out total))
+                        _sink.Total = total;
+
                     await _innerContent.CopyToAsync(progressStream);
                 }
             }
