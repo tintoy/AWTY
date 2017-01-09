@@ -57,6 +57,24 @@ namespace AWTY
         {
             return new ProgressData<TValue>(percentComplete, current, total);
         }
+
+        /// <summary>
+        ///     Create new detailed progress from raw progress data.
+        /// </summary>
+        /// <param name="raw">
+        ///     The raw progress data.
+        /// </param>
+        /// <param name="percentComplete">
+        ///     The percentage completion.
+        /// </param>
+        /// <returns>
+        ///     The progress data.
+        /// </returns>
+        public static ProgressData<TValue> Create<TValue>(RawProgressData<TValue> raw, int percentComplete)
+            where TValue : IEquatable<TValue>, IComparable<TValue>
+        {
+            return new ProgressData<TValue>(percentComplete, raw.Current, raw.Total);
+        }
     }
 
     /// <summary>
@@ -97,5 +115,56 @@ namespace AWTY
         ///     The total value against which progress is measured.
         /// </summary>
         public TValue Total { get; }
+
+        /// <summary>
+        ///     Create a copy of the progress data, but with the specified percentage completion.
+        /// </summary>
+        /// <param name="percentComplete">
+        ///     The new percentage completion.
+        /// </param>
+        /// <returns>
+        ///     The new <see cref="ProgressData{TValue}"/>.
+        /// </returns>
+        public ProgressData<TValue> WithPercentComplete(int percentComplete)
+        {
+            if (percentComplete == PercentComplete)
+                return this;
+
+            return new ProgressData<TValue>(percentComplete, Current, Total);
+        }
+
+        /// <summary>
+        ///     Create a copy of the progress data, but with the specified progress value.
+        /// </summary>
+        /// <param name="current">
+        ///     The new progress value.
+        /// </param>
+        /// <returns>
+        ///     The new <see cref="ProgressData{TValue}"/>.
+        /// </returns>
+        public ProgressData<TValue> WithCurrent(TValue current)
+        {
+            if (Current.Equals(current))
+                return this;
+
+            return new ProgressData<TValue>(PercentComplete, current, Total);
+        }
+
+        /// <summary>
+        ///     Create a copy of the progress data, but with the specified total.
+        /// </summary>
+        /// <param name="total">
+        ///     The new total.
+        /// </param>
+        /// <returns>
+        ///     The new <see cref="ProgressData{TValue}"/>.
+        /// </returns>
+        public ProgressData<TValue> WithTotal(TValue total)
+        {
+            if (Total.Equals(total))
+                return this;
+
+            return new ProgressData<TValue>(PercentComplete, Current, total);
+        }
     }
 }

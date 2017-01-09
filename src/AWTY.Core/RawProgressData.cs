@@ -56,5 +56,39 @@ namespace AWTY
         ///     The total value against which progress is measured.
         /// </summary>
         public TValue Total { get; }
+
+        /// <summary>
+        ///     Create a copy of the raw progress data, but with the specified current progress value.
+        /// </summary>
+        /// <param name="current">
+        ///     The new progress value.
+        /// </param>
+        /// <returns>
+        ///     The new progress data.
+        /// </returns>
+        public RawProgressData<TValue> WithCurrent(TValue current)
+        {
+            if (Current.Equals(current))
+                return this;
+
+            return new RawProgressData<TValue>(current, Total);
+        }
+
+        /// <summary>
+        ///     Create a copy of the raw progress data, but with the specified total.
+        /// </summary>
+        /// <param name="total">
+        ///     The new total.
+        /// </param>
+        /// <returns>
+        ///     The new progress data.
+        /// </returns>
+        public RawProgressData<TValue> WithTotal(TValue total)
+        {
+            if (Total.Equals(total))
+                return this;
+
+            return new RawProgressData<TValue>(Current, total);
+        }
     }
 }
