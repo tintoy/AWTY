@@ -6,7 +6,6 @@ namespace AWTY
 {
     using Core.Sinks;
     using Http;
-    using IO;
 
     // TODO:
     //      DelegatingHandler that uses these extension methods. This can then be installed in the pipeline of an HttpClient.
@@ -49,7 +48,6 @@ namespace AWTY
 
             request.Content = new ProgressContent(
                 innerContent: request.Content,
-                direction: StreamDirection.Write,
                 sink: progressSink ?? new Int64ProgressSink()
             );
             request.SetProgressContextId(ProgressContext.Current.Id);
@@ -84,7 +82,6 @@ namespace AWTY
 
             response.Content = new ProgressContent(
                 innerContent: response.Content,
-                direction: StreamDirection.Read,
                 sink: progressSink ?? new Int64ProgressSink()
             );
 

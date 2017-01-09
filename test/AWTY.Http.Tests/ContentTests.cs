@@ -6,8 +6,6 @@ using Xunit;
 
 namespace AWTY.Http.Tests
 {
-    using IO;
-
     /// <summary>
     ///     Tests for <see cref="ProgressContent"/>
     /// </summary>
@@ -23,7 +21,7 @@ namespace AWTY.Http.Tests
 
             string expectedContent = new String('x', contentLength);
             using (StringContent stringContent = new StringContent(expectedContent))
-            using (ProgressContent progressContent = new ProgressContent(stringContent, StreamDirection.Read))
+            using (ProgressContent progressContent = new ProgressContent(stringContent))
             {
                 progressContent.Progress.Percentage(10).Subscribe(progress =>
                 {

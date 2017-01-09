@@ -21,15 +21,6 @@ namespace AWTY.Http
         HttpContent                         _innerContent;
 
         /// <summary>
-        ///     The expected stream direction.
-        /// </summary>
-        /// <remarks>
-        ///     For an <see cref="HttpRequestMessage"/>, this is <see cref="StreamDirection.Write"/>.
-        ///     For an <see cref="HttpResponseMessage"/>, this is <see cref="StreamDirection.Read"/>.
-        /// </remarks>
-        StreamDirection                     _direction;
-
-        /// <summary>
         ///     The sink which will receive raw progress data.
         /// </summary>
         IProgressSink<long>                _sink;
@@ -40,11 +31,8 @@ namespace AWTY.Http
         /// <param name="innerContent">
         ///     The inner <see cref="HttpContent"/>.
         /// </param>
-        /// <param name="direction">
-        ///     The expected stream direction.
-        /// </param>
-        public ProgressContent(HttpContent innerContent, StreamDirection direction)
-            : this(innerContent, direction, new Int64ProgressSink())
+        public ProgressContent(HttpContent innerContent)
+            : this(innerContent, new Int64ProgressSink())
         {
         }
 
@@ -54,13 +42,10 @@ namespace AWTY.Http
         /// <param name="innerContent">
         ///     The inner <see cref="HttpContent"/>.
         /// </param>
-        /// <param name="direction">
-        ///     The expected stream direction.
-        /// </param>
         /// <param name="sink">
         ///     The sink which will receive raw progress data.
         /// </param>
-        public ProgressContent(HttpContent innerContent, StreamDirection direction, IProgressSink<long> sink)
+        public ProgressContent(HttpContent innerContent, IProgressSink<long> sink)
         {
             if (innerContent == null)
                 throw new ArgumentNullException(nameof(innerContent));
@@ -69,7 +54,6 @@ namespace AWTY.Http
                 throw new ArgumentNullException(nameof(sink));
 
             _innerContent = innerContent;
-            _direction = direction;
             _sink = sink;
 
             LoadHeaders();
@@ -106,26 +90,20 @@ namespace AWTY.Http
         /// </returns>
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
-            // Must know the content length to report progress.
-            if (Headers.ContentLength.HasValue)
+            ProgressStream progressStream = new ProgressStream(
+                innerStream: stream,
+                streamDirection: StreamDirection.Write,
+                ownsStream: false,
+                sink: _sink
+            );
+            using (progressStream)
             {
-                ProgressStream progressStream = new ProgressStream(
-                    innerStream: stream,
-                    streamDirection: _direction,
-                    ownsStream: false,
-                    sink: _sink
-                );
-                using (progressStream)
-                {
-                    long total;
-                    if (TryComputeLength(out total))
-                        _sink.Total = total;
+                long total;
+                if (TryComputeLength(out total))
+                    _sink.Total = total;
 
-                    await _innerContent.CopyToAsync(progressStream);
-                }
+                await _innerContent.CopyToAsync(progressStream);
             }
-            else
-                await _innerContent.CopyToAsync(stream);
         }
 
         /// <summary>
