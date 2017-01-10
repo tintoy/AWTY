@@ -27,7 +27,7 @@ using (ProgressStream stream = new FileStream("foo.txt").WithReadProgress(progre
 }
 ```
 
-#### Progress for reading from a FileStream
+#### Progress for an HttpClient
 
 To only report progress for every change of 5 percent or more when the content is read from an HttpClient response:
 
