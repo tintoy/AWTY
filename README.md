@@ -39,7 +39,7 @@ progressObserver.Subscribe(progress =>
 });
 
 HttpClient client = new HttpClient();
-using (HttpResponseMessage response = await client.GetAsync("http://www.google.com/").WithProgress(progressObserver))
+using (HttpResponseMessage response = await client.GetAsync("http://www.microsoft.com/", HttpCompletionOption.ResponseHeadersRead).WithProgress(progressObserver))
 {
     Console.WriteLine(
         await response.Content.ReadAsStringAsync()
