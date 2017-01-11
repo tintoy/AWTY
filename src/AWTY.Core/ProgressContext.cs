@@ -9,6 +9,11 @@ namespace AWTY
     public sealed class ProgressContext
     {
         /// <summary>
+        ///     Object used to synchronise access to <see cref="ProgressContext"/> state.
+        /// </summary>
+        static readonly object                      _stateLock = new object();
+
+        /// <summary>
         ///     The current progress context.
         /// </summary>
         static readonly AsyncLocal<ProgressContext> _current = new AsyncLocal<ProgressContext>();
@@ -16,7 +21,19 @@ namespace AWTY
         /// <summary>
         ///     The current progress context.
         /// </summary>
-        public static ProgressContext Current => _current.Value;
+        public static ProgressContext Current
+        {
+            get
+            {
+                lock(_stateLock)
+                {
+                    if (_current.Value == null)
+                        _current.Value = new ProgressContext();
+
+                    return _current.Value;
+                }
+            }
+        }
 
         /// <summary>
         ///     Create a new progress context.
