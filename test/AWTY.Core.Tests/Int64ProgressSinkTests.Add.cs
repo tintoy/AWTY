@@ -12,7 +12,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_0() 
         {
-            IProgressSink<long> progressSink = new Int64ProgressSink(total: 10L);
+            IProgressSink<long> progressSink = new Int64ProgressSink(initialTotal: 10L);
             progressSink.Add(0L);
 
             Assert.Equal(10L, progressSink.Total);
@@ -22,7 +22,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_5() 
         {
-            IProgressSink<long> progressSink = new Int64ProgressSink(total: 10L);
+            IProgressSink<long> progressSink = new Int64ProgressSink(initialTotal: 10L);
             progressSink.Add(5L);
 
             Assert.Equal(10L, progressSink.Total);
@@ -32,7 +32,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_10() 
         {
-            IProgressSink<long> progressSink = new Int64ProgressSink(total: 10L);
+            IProgressSink<long> progressSink = new Int64ProgressSink(initialTotal: 10L);
             progressSink.Add(10L);
 
             Assert.Equal(10L, progressSink.Total);
@@ -42,7 +42,7 @@ namespace AWTY.Core.Tests
         [Fact]
         public void Total_10_Add_11() 
         {
-            IProgressSink<long> progressSink = new Int64ProgressSink(total: 10L);
+            IProgressSink<long> progressSink = new Int64ProgressSink(initialTotal: 10L);
             progressSink.Add(11L);
 
             Assert.Equal(10L, progressSink.Total);

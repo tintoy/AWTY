@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Collections.Generic;
+using Xunit;
 
 namespace AWTY.Core.Tests
 {
@@ -9,44 +10,20 @@ namespace AWTY.Core.Tests
     /// </summary>
     public partial class Int32ProgressSinkTests
     {
-        [Fact]
-        public void Total_10_Add_0() 
+        [Theory]
+        [MemberData(nameof(AddTheoryData))]
+        public void Add(int total, int initialValue, int amountToAdd, int expectedCurrent)
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10);
-            progressSink.Add(0);
+            IProgressSink<int> progressSink = new Int32ProgressSink(total, initialValue);
+            progressSink.Add(amountToAdd);
 
-            Assert.Equal(10, progressSink.Total);
-            Assert.Equal(0, progressSink.Current);
+            Assert.Equal(total, progressSink.Total);
+            Assert.Equal(expectedCurrent, progressSink.Current);
         }
 
-        [Fact]
-        public void Total_10_Add_5() 
-        {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10);
-            progressSink.Add(5);
-
-            Assert.Equal(10, progressSink.Total);
-            Assert.Equal(5, progressSink.Current);
-        }
-
-        [Fact]
-        public void Total_10_Add_10() 
-        {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10);
-            progressSink.Add(10);
-
-            Assert.Equal(10, progressSink.Total);
-            Assert.Equal(10, progressSink.Current);
-        }
-
-        [Fact]
-        public void Total_10_Add_11() 
-        {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 10);
-            progressSink.Add(11);
-
-            Assert.Equal(10, progressSink.Total);
-            Assert.Equal(11, progressSink.Current);
-        }
+        /// <summary>
+        ///     Data for the <see cref="Int32ProgressSink"/> <see cref="Add"/> theory.
+        /// </summary>
+        public static IEnumerable<object[]> AddTheoryData => TestData.Theory.Int32SinkAdd;
     }
 }

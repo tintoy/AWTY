@@ -29,25 +29,43 @@ namespace AWTY.Core.Sinks
         ///     Create a new <see cref="Int32ProgressSink"/> with a <see cref="Total"/> of 100.
         /// </summary>
         public Int32ProgressSink()
-            : this(total: 100)
+            : this(initialTotal: 100)
         {
         }
 
         /// <summary>
         ///     Create a new <see cref="Int32ProgressSink"/>.
         /// </summary>
-        /// <param name="total">
+        /// <param name="initialTotal">
         ///     The initial progress total.
         /// </param>
         /// <exception cref="ArgumentOutOfRangeException">
-        ///     <paramref name="total"/> is less than 1.
+        ///     <paramref name="initialTotal"/> is less than 1.
         /// </exception>
-        public Int32ProgressSink(int total)
+        public Int32ProgressSink(int initialTotal)
+            : this(initialTotal, initialValue: 0)
         {
-            if (total < 1)
-                throw new ArgumentOutOfRangeException(nameof(total), total, "Progress total cannot be less than 1.");
+        }
+        
+        /// <summary>
+        ///     Create a new <see cref="Int32ProgressSink"/>.
+        /// </summary>
+        /// <param name="initialTotal">
+        ///     The initial progress total.
+        /// </param>
+        /// <param name="initialValue">
+        ///     The initial progress value.
+        /// </param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     <paramref name="initialTotal"/> is less than 1.
+        /// </exception>
+        public Int32ProgressSink(int initialTotal, int initialValue)
+        {
+            if (initialTotal < 1)
+                throw new ArgumentOutOfRangeException(nameof(initialTotal), initialTotal, "Progress total cannot be less than 1.");
 
-            _total = total;
+            _total = initialTotal;
+            _current = initialValue;
         }
 
         /// <summary>
@@ -116,6 +134,19 @@ namespace AWTY.Core.Sinks
             PublishRawData(current, total);
 
             return current;
+        }
+
+        /// <summary>
+        ///     Set the current progress value.
+        /// </summary>
+        /// <param name="current">
+        ///     The current progress value.
+        /// </param>
+        public void SetCurrent(int current)
+        {
+            int total = _total;
+            _current = current;
+            PublishRawData(current, total);
         }
 
         /// <summary>

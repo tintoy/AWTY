@@ -42,6 +42,14 @@ namespace AWTY
         TValue Subtract(TValue value);
 
         /// <summary>
+        ///     Set the current progress value.
+        /// </summary>
+        /// <param name="current">
+        ///     The current progress value.
+        /// </param>
+        void SetCurrent(TValue current);
+
+        /// <summary>
         ///     Reset the current progress value to 0.
         /// </summary>
         void Reset();

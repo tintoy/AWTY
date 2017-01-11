@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reactive;
+using System.Reactive.Linq;
 using Xunit;
 
 namespace AWTY.Core.Tests
 {
-    using System.Reactive;
-    using System.Reactive.Linq;
     using Sinks;
     using Strategies;
 
@@ -80,7 +80,7 @@ namespace AWTY.Core.Tests
                 actualPercentages.Add(progressData.PercentComplete);
             });
 
-            Int32ProgressSink sink = new Int32ProgressSink(total: total);
+            Int32ProgressSink sink = new Int32ProgressSink(initialTotal: total);
             sink.Subscribe(strategy);
             
             int iterationCount = total / increment;
@@ -94,7 +94,7 @@ namespace AWTY.Core.Tests
         /// <summary>
         ///     Data for the <see cref="Add"/> theory test.
         /// </summary>
-        public static IEnumerable<object[]> AddTheoryData => TestData.Theory.ChunkedPercentage32;
+        public static IEnumerable<object[]> AddTheoryData => TestData.Theory.Int32ChunkedPercentage;
 
         /// <summary>
         ///     Adjust the total to yield the correct number of iterations, accounting for the specified increment.

@@ -56,7 +56,7 @@ namespace AWTY.Core.Tests
         /// <summary>
         ///     Data for the <see cref="ReportProgress"/> theory test.
         /// </summary>
-        public static IEnumerable<object[]> ReportProgressTheoryData => TestData.Theory.ChunkedPercentage64;
+        public static IEnumerable<object[]> ReportProgressTheoryData => TestData.Theory.Int64ChunkedPercentage;
 
         /// <summary>
         ///     Adjust the total to yield the correct number of iterations, accounting for the specified increment.

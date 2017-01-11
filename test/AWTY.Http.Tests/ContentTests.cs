@@ -7,10 +7,13 @@ using Xunit;
 namespace AWTY.Http.Tests
 {
     /// <summary>
-    ///     Tests for <see cref="ProgressContent"/>
+    ///     Tests for <see cref="ProgressContent"/>.
     /// </summary>
     public class ContentTests
     {
+        /// <summary>
+        ///     Wrap <see cref="StringContent"/> in <see cref="ProgressContent"/>, and read the content as a string.
+        /// </summary>
         [Fact]
         public async Task StringContent_ReadAsString()
         {

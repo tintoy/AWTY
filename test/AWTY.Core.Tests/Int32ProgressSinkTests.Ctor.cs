@@ -10,35 +10,31 @@ namespace AWTY.Core.Tests
     /// </summary>
     public partial class Int32ProgressSinkTests
     {
-        [Fact]
-        public void Ctor_Total_100() 
+        /// <summary>
+        ///     Construct an <see cref="Int32ProgressSink"/> with a valid total.
+        /// </summary>
+        [Theory]
+        [InlineData(1)]
+        [InlineData(100)]
+        [InlineData(Int32.MaxValue)]
+        public void Ctor_Total(int initialTotal) 
         {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: 100);
-            Assert.Equal(100, progressSink.Total);
+            IProgressSink<int> progressSink = new Int32ProgressSink(initialTotal);
+            Assert.Equal(initialTotal, progressSink.Total);
             Assert.Equal(0, progressSink.Current);
         }
 
-        [Fact]
-        public void Ctor_Total_MaxValue() 
-        {
-            IProgressSink<int> progressSink = new Int32ProgressSink(total: Int32.MaxValue);
-            Assert.Equal(0, progressSink.Current);
-            Assert.Equal(Int32.MaxValue, progressSink.Total);
-        }
-
-        [Fact]
-        public void Ctor_Total_0() 
+        /// <summary>
+        ///     Construct an <see cref="Int32ProgressSink"/> with an invalid total (out-of-range).
+        /// </summary>
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(Int32.MinValue)]        
+        public void Ctor_Total_ArgumentOutOfRange(int initialTotal)
         {
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => new Int32ProgressSink(total: 0)
-            );
-        }
-
-        [Fact]
-        public void Ctor_Total_Negative1() 
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(
-                () => new Int32ProgressSink(total: -1)
+                () => new Int32ProgressSink(initialTotal: 0)
             );
         }
     }
