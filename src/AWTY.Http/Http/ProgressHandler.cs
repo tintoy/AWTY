@@ -145,11 +145,9 @@ namespace AWTY.Http
                     request.SetProgressContextId(progressContextId);
                 }
 
-                Int64ProgressSink sink = null;
-
-                if ((_progressTypes & HttpProgressTypes.Request) != 0)
+                if (IsProgressEnabled(HttpProgressTypes.Request))
                 {
-                    sink = new Int64ProgressSink();
+                    var sink = new Int64ProgressSink();
                     request.AddProgress(sink);
 
                     NotificationSubject.OnNext(new RequestStarted(
@@ -164,9 +162,9 @@ namespace AWTY.Http
 
                 response = await base.SendAsync(request, cancellationToken);
 
-                if ((_progressTypes & HttpProgressTypes.Response) != 0)
+                if (IsProgressEnabled(HttpProgressTypes.Response))
                 {
-                    sink = new Int64ProgressSink();
+                    var sink = new Int64ProgressSink();
                     response.AddProgress(sink);
 
                     NotificationSubject.OnNext(new ResponseStarted(
@@ -190,6 +188,20 @@ namespace AWTY.Http
             }
 
             return response;
+        }
+
+        /// <summary>
+        ///     Determine whether the specified type of progress reporting is enabled.
+        /// </summary>
+        /// <param name="progressType">
+        ///     The progress type to test.
+        /// </param>
+        /// <returns>
+        ///     <c>true</c>, if the progress type is enabled; otherwise, <c>false</c>.
+        /// </returns>
+        bool IsProgressEnabled(HttpProgressTypes progressType)
+        {
+            return (_progressTypes & progressType) == progressType;
         }
     }
 }
