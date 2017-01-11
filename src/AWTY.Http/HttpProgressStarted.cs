@@ -1,15 +1,15 @@
 using System;
 using System.Net.Http;
 
-namespace AWTY.Http
+namespace AWTY
 {
     /// <summary>
-    ///     The base class for XXXstarted notifications.
+    ///     The base class for XXXProgressStarted notifications.
     /// </summary>
-    public abstract class HttpStarted
+    public abstract class HttpProgressStarted
     {
         /// <summary>
-        ///     Create a new <see cref="HttpStarted"/>.
+        ///     Create a new <see cref="HttpProgressStarted"/>.
         /// </summary>
         /// <param name="requestUri">
         ///     The request URI.
@@ -20,7 +20,7 @@ namespace AWTY.Http
         /// <param name="progressContextId">
         ///     The Id of the <see cref="ProgressContext"/> where the request was initiated.
         /// </param>
-        protected HttpStarted(Uri requestUri, string requestMethod, string progressContextId)
+        protected HttpProgressStarted(Uri requestUri, string requestMethod, string progressContextId)
         {
             RequestUri = requestUri;
             RequestMethod = requestMethod;

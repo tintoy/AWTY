@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 
-namespace AWTY.Http
+namespace AWTY
 {
     /// <summary>
     ///     A notification indicating the availability of progress reporting for a newly-started response.
@@ -10,7 +10,7 @@ namespace AWTY.Http
     ///     When progress reporting is enabled for an <see cref="HttpClient"/>, then a new <see cref="ResponseStarted"/> will be sent for each request.
     /// </remarks>
     public class ResponseStarted
-        : HttpStarted
+        : HttpProgressStarted
     {
         /// <summary>
         ///     Create a new <see cref="ResponseStarted"/>.

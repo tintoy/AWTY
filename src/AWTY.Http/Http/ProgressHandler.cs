@@ -21,9 +21,9 @@ namespace AWTY.Http
         static readonly IObservable<RawProgressData<long>> NoProgress = Observable.Never<RawProgressData<long>>();
 
         /// <summary>
-        ///     The subject used to publish <see cref="HttpStarted"/> notifications.
+        ///     The subject used to publish <see cref="HttpProgressStarted"/> notifications.
         /// </summary>
-        readonly Subject<HttpStarted>   _notificationSubject = new Subject<HttpStarted>();
+        readonly Subject<HttpProgressStarted>   _notificationSubject = new Subject<HttpProgressStarted>();
 
         /// <summary>
         ///     The type(s) of progress that will be reported by the handler.
@@ -74,7 +74,7 @@ namespace AWTY.Http
         /// <remarks>
         ///     Cast to <see cref="RequestStarted"/> / <see cref="ResponseStarted"/>, as appropriate.
         /// </remarks>
-        public IObservable<HttpStarted> Started => _notificationSubject;
+        public IObservable<HttpProgressStarted> Started => _notificationSubject;
 
         /// <summary>
         ///     An observable that can be used to receive notifications for progress of newly-started requests.
@@ -103,6 +103,13 @@ namespace AWTY.Http
             HttpResponseMessage response = null;
             try
             {
+                string progressContextId = request.GetProgressContextId();
+                if (progressContextId == null)
+                {
+                    progressContextId = ProgressContext.Current.Id;
+                    request.SetProgressContextId(progressContextId);
+                }
+
                 Int64ProgressSink sink = null;
 
                 if ((_progressTypes & RequestProgressTypes.Send) != 0)
@@ -113,7 +120,7 @@ namespace AWTY.Http
                     _notificationSubject.OnNext(new RequestStarted(
                         request.RequestUri,
                         request.Method.Method,
-                        ProgressContext.Current.Id,
+                        progressContextId,
                         progress: sink
                     ));
                 }
@@ -128,7 +135,7 @@ namespace AWTY.Http
                     _notificationSubject.OnNext(new ResponseStarted(
                         request.RequestUri,
                         request.Method.Method,
-                        ProgressContext.Current.Id,
+                        progressContextId,
                         progress: sink
                     ));
                 }
