@@ -56,12 +56,10 @@ using (HttpResponseMessage response = await client.GetAsync("http://www.microsof
 To only report progress for every change of 5 percent or more when a response is received by an `HttpClient`:
 
 ```csharp
-ProgressHandler progressHandler = new ProgressHandler(
-    nextHandler: new HttpClientHandler(),
-    progressTypes: HttpProgressTypes.Response
-);
+HttpClientHandler clientHandler = new HttpClientHandler();
+ProgressHandler progressHandler = new ProgressHandler(clientHandler, HttpProgressTypes.Response);
 
-// Notify each time an HttpResponseMessage is available.
+// Notify each time we start receiving an HTTP response.
 progressHandler.ResponseStarted.Subscribe(responseStarted =>
 {
     Output.WriteLine("Started receiving {0} response for '{1}'...",
