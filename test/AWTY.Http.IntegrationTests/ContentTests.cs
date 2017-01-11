@@ -11,7 +11,7 @@ namespace AWTY.Http.IntegrationTests
     /// <summary>
     ///     Integration tests for <see cref="ProgressContent"/>.
     /// </summary>
-    public class ContentIntegrationTests
+    public class ContentTests
         : IClassFixture<TestServer>
     {
         /// <summary>
@@ -23,7 +23,7 @@ namespace AWTY.Http.IntegrationTests
         /// <param name="testOutput">
         ///     XUnit test output.
         /// </param>
-        public ContentIntegrationTests(TestServer testServer, ITestOutputHelper testOutput)
+        public ContentTests(TestServer testServer, ITestOutputHelper testOutput)
         {
             if (testServer == null)
                 throw new ArgumentNullException(nameof(testServer));

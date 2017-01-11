@@ -88,7 +88,23 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         /// </returns>
         public HttpClient CreateClient()
         {
-            return new HttpClient
+            return CreateClient(
+                new HttpClientHandler()
+            );
+        }
+
+        /// <summary>
+        ///     Create an <see cref="HttpClient"/> that targets the test server.
+        /// </summary>
+        /// <param name="clientHandler">
+        ///     The client message handler that acts as the <see cref="HttpClient"/>'s message pipeline terminus.
+        /// </param>
+        /// <returns>
+        ///     The configured <see cref="HttpClient"/> (base address will be set to the server's base address).
+        /// </returns>
+        public HttpClient CreateClient(HttpMessageHandler clientHandler)
+        {
+            return new HttpClient(clientHandler)
             {
                 BaseAddress = BaseAddress
             };

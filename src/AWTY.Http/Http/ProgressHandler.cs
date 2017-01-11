@@ -28,7 +28,7 @@ namespace AWTY.Http
         /// <summary>
         ///     The type(s) of progress that will be reported by the handler.
         /// </summary>
-        RequestProgressTypes            _progressTypes;
+        HttpProgressTypes            _progressTypes;
 
         /// <summary>
         ///     Create a new <see cref="ProgressHandler"/>.
@@ -36,7 +36,7 @@ namespace AWTY.Http
         /// <param name="progressTypes">
         ///     The type(s) of progress that will be reported by the handler.
         /// </param>
-        public ProgressHandler(RequestProgressTypes progressTypes)
+        public ProgressHandler(HttpProgressTypes progressTypes = HttpProgressTypes.Both)
         {
             _progressTypes = progressTypes;
         }
@@ -44,13 +44,13 @@ namespace AWTY.Http
         /// <summary>
         ///     Create a new <see cref="ProgressHandler"/>.
         /// </summary>
-        /// <param name="progressTypes">
-        ///     The type(s) of progress that will be reported by the handler.
-        /// </param>
         /// <param name="nextHandler">
         ///     The next handler in the chain (if any).
         /// </param>
-        public ProgressHandler(RequestProgressTypes progressTypes, DelegatingHandler nextHandler)
+        /// <param name="progressTypes">
+        ///     The type(s) of progress that will be reported by the handler.
+        /// </param>
+        public ProgressHandler(HttpMessageHandler nextHandler, HttpProgressTypes progressTypes = HttpProgressTypes.Both)
             : base(nextHandler)
         {
             _progressTypes = progressTypes;
@@ -120,7 +120,7 @@ namespace AWTY.Http
 
                 Int64ProgressSink sink = null;
 
-                if ((_progressTypes & RequestProgressTypes.Send) != 0)
+                if ((_progressTypes & HttpProgressTypes.Request) != 0)
                 {
                     sink = new Int64ProgressSink();
                     request.AddProgress(sink);
@@ -137,7 +137,7 @@ namespace AWTY.Http
 
                 response = await base.SendAsync(request, cancellationToken);
 
-                if ((_progressTypes & RequestProgressTypes.Receive) != 0)
+                if ((_progressTypes & HttpProgressTypes.Response) != 0)
                 {
                     sink = new Int64ProgressSink();
                     response.AddProgress(sink);
