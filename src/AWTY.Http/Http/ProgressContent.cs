@@ -90,6 +90,9 @@ namespace AWTY.Http
         /// </returns>
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream));
+
             ProgressStream progressStream = new ProgressStream(
                 innerStream: stream,
                 streamDirection: StreamDirection.Write,

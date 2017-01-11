@@ -65,7 +65,10 @@ namespace AWTY.Http
         protected override void Dispose(bool disposing)
         {
             if (disposing)
+            {
+                _notificationSubject.OnCompleted();
                 _notificationSubject.Dispose();
+            }
         }
 
         /// <summary>
@@ -100,6 +103,11 @@ namespace AWTY.Http
         /// </returns>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             HttpResponseMessage response = null;
             try
             {
@@ -123,6 +131,8 @@ namespace AWTY.Http
                         progressContextId,
                         progress: sink
                     ));
+
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
 
                 response = await base.SendAsync(request, cancellationToken);
@@ -138,6 +148,8 @@ namespace AWTY.Http
                         progressContextId,
                         progress: sink
                     ));
+
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
             }
             catch (Exception requestError)
