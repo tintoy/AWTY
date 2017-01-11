@@ -23,12 +23,12 @@ namespace AWTY.Http
         /// <summary>
         ///     The subject used to publish <see cref="HttpProgressStarted"/> notifications.
         /// </summary>
-        readonly Subject<HttpProgressStarted>   _notificationSubject = new Subject<HttpProgressStarted>();
+        Subject<HttpProgressStarted>    _notificationSubject = new Subject<HttpProgressStarted>();
 
         /// <summary>
         ///     The type(s) of progress that will be reported by the handler.
         /// </summary>
-        HttpProgressTypes            _progressTypes;
+        HttpProgressTypes               _progressTypes;
 
         /// <summary>
         ///     Create a new <see cref="ProgressHandler"/>.
@@ -66,9 +66,21 @@ namespace AWTY.Http
         {
             if (disposing)
             {
-                _notificationSubject.OnCompleted();
-                _notificationSubject.Dispose();
+                Subject<HttpProgressStarted> notificationSubject = Interlocked.Exchange(ref _notificationSubject, null);
+                using (notificationSubject)
+                {
+                    notificationSubject?.OnCompleted();
+                }
             }
+        }
+
+        /// <summary>
+        ///     Check if the <see cref="ProgressHandler"/> has been disposed.
+        /// </summary>
+        void CheckDisposed()
+        {
+            if (_notificationSubject == null)
+                throw new ObjectDisposedException(nameof(ProgressHandler));
         }
 
         /// <summary>
@@ -77,7 +89,7 @@ namespace AWTY.Http
         /// <remarks>
         ///     Cast to <see cref="RequestStarted"/> / <see cref="ResponseStarted"/>, as appropriate.
         /// </remarks>
-        public IObservable<HttpProgressStarted> Started => _notificationSubject;
+        public IObservable<HttpProgressStarted> Started => NotificationSubject;
 
         /// <summary>
         ///     An observable that can be used to receive notifications for progress of newly-started requests.
@@ -88,6 +100,21 @@ namespace AWTY.Http
         ///     An observable that can be used to receive notifications for progress of newly-started responses.
         /// </summary>
         public IObservable<ResponseStarted> ResponseStarted => Started.OfType<ResponseStarted>();
+
+        /// <summary>
+        ///     The subject used to publish <see cref="HttpProgressStarted"/> notifications.
+        /// </summary>
+        Subject<HttpProgressStarted> NotificationSubject
+        {
+            get
+            {
+                CheckDisposed();
+
+                // Potential race but, meh, good enough.
+
+                return _notificationSubject;
+            }
+        }
 
         /// <summary>
         ///     Asynchronously process an HTTP request message and its response.
@@ -125,7 +152,7 @@ namespace AWTY.Http
                     sink = new Int64ProgressSink();
                     request.AddProgress(sink);
 
-                    _notificationSubject.OnNext(new RequestStarted(
+                    NotificationSubject.OnNext(new RequestStarted(
                         request.RequestUri,
                         request.Method.Method,
                         progressContextId,
@@ -142,7 +169,7 @@ namespace AWTY.Http
                     sink = new Int64ProgressSink();
                     response.AddProgress(sink);
 
-                    _notificationSubject.OnNext(new ResponseStarted(
+                    NotificationSubject.OnNext(new ResponseStarted(
                         request.RequestUri,
                         request.Method.Method,
                         progressContextId,
