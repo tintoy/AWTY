@@ -16,6 +16,11 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         : IDisposable
     {
         /// <summary>
+        ///     Object used to synchronise access to server state.
+        /// </summary>
+        object _stateLock = new object();
+
+        /// <summary>
         ///     The server's ASP.NET web host.
         /// </summary>
         IWebHost _host;
@@ -25,7 +30,9 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         /// </summary>
         public TestServer()
         {
-            Port = new Random().Next(9000, 9700);
+            Console.WriteLine("TestServer constructor");
+
+            Port = 15123;
             BaseAddress = new Uri($"http://localhost:{Port}/");
         }
 
@@ -40,6 +47,11 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         public Uri BaseAddress { get; }
 
         /// <summary>
+        ///     Is the server running?
+        /// </summary>
+        public bool IsRunning { get; private set; }
+
+        /// <summary>
         ///     Start the test server.
         /// </summary>
         /// <param name="testOutput">
@@ -47,20 +59,25 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         /// </param>
         public void Start(ITestOutputHelper testOutput = null)
         {
-            Stop();
+            lock(_stateLock)
+            {
+                if (IsRunning)
+                    return;
 
-            _host = new WebHostBuilder()
-                .ConfigureServices(services =>
-                {
-                    services.AddSingleton<ITestOutputHelper>(testOutput);
-                })
-                .UseKestrel()
-                .UseStartup<TestServerStartup>()
-                
-                .UseUrls(BaseAddress.AbsoluteUri)
-                .Build();
+                _host = new WebHostBuilder()
+                    .ConfigureServices(services =>
+                    {
+                        services.AddSingleton<ITestOutputHelper>(testOutput);
+                    })
+                    .UseKestrel()
+                    .UseStartup<TestServerStartup>()
+                    .UseUrls(BaseAddress.AbsoluteUri)
+                    .Build();
 
-            _host.Start();
+                _host.Start();
+
+                IsRunning = true;
+            }
         }
 
         /// <summary>
@@ -68,8 +85,19 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         /// </summary>
         public void Stop()
         {
-            _host?.Dispose();
-            _host = null;
+            lock(_stateLock)
+            {
+                if (!IsRunning)
+                    return;
+
+                if (_host == null)
+                    return;
+
+                _host.Dispose();
+                _host = null;
+
+                IsRunning = false;
+            }
         }
 
         /// <summary>
@@ -77,7 +105,7 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         /// </summary>
         public void Dispose()
         {
-            _host?.Dispose();
+            Stop();
         }
 
         /// <summary>

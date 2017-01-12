@@ -91,7 +91,14 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         {
             string message = formatter(state, exception);
 
-            _testOutput.WriteLine("[{0}] {1}: {2}", logLevel, _categoryName, message);
+            try
+            {
+                _testOutput.WriteLine("[{0}] {1}: {2}", logLevel, _categoryName, message);
+            }
+            catch (InvalidOperationException)
+            {
+                // Test has completed before server shutdown.
+            }
         }
     }
 

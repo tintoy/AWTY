@@ -40,7 +40,7 @@ namespace AWTY.Http.IntegrationTests.TestApplication
             if (testOutput != null)
             {
                 loggerFactory.AddProvider(
-                    new TestOutputLoggerProvider(testOutput, LogLevel.Information)
+                    new TestOutputLoggerProvider(testOutput, LogLevel.Trace)
                 );
             }
 

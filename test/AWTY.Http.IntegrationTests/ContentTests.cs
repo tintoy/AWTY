@@ -11,6 +11,7 @@ namespace AWTY.Http.IntegrationTests
     /// <summary>
     ///     Integration tests for <see cref="ProgressContent"/>.
     /// </summary>
+    [Collection("NeedsTestServer")]
     public class ContentTests
         : IClassFixture<TestServer>
     {
@@ -35,6 +36,14 @@ namespace AWTY.Http.IntegrationTests
             Output = testOutput;
 
             TestServer.Start(Output);
+        }
+
+        /// <summary>
+        ///     Dispose of resources being used by the test suite.
+        /// </summary>
+        public void Dispose()
+        {
+            TestServer?.Dispose();
         }
 
         /// <summary>
