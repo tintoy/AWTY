@@ -13,7 +13,6 @@ namespace AWTY.Http.IntegrationTests
     /// </summary>
     [Collection("NeedsTestServer")]
     public class ContentTests
-        : IClassFixture<TestServer>
     {
         /// <summary>
         ///     Create a new content integration-test suite.
@@ -36,14 +35,6 @@ namespace AWTY.Http.IntegrationTests
             Output = testOutput;
 
             TestServer.Start(Output);
-        }
-
-        /// <summary>
-        ///     Dispose of resources being used by the test suite.
-        /// </summary>
-        public void Dispose()
-        {
-            TestServer?.Dispose();
         }
 
         /// <summary>
