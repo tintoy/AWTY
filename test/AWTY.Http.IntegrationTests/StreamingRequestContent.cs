@@ -57,6 +57,18 @@ namespace AWTY.Http.IntegrationTests
         }
 
         /// <summary>
+        ///     Dispose of resources being used by the content.
+        /// </summary>
+        /// <param name="disposing">
+        ///     Explicit disposal?
+        /// </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _stream?.Dispose();
+        }
+
+        /// <summary>
         ///     Serialise the content to a stream, as an asynchronous operation.
         /// </summary>
         /// <param name="stream">
