@@ -58,21 +58,40 @@ namespace AWTY.Http.IntegrationTests
         ITestOutputHelper Output { get; }
 
         /// <summary>
-        ///     Retrieve a 10KB response payload with progress reporting in chunks of 5%.
+        ///     Retrieve a response payload with progress reporting.
         /// </summary>
-        [Fact]
-        public async Task Get_Response_10K_5Percent()
+        /// <param name="bufferSize">
+        ///     The buffer size for transferring data.
+        /// </param>
+        /// <param name="payloadSize">
+        ///     The number of bytes in the payload.
+        /// </param>
+        /// <param name="minPercentage">
+        ///     The minimum change in percentage to capture.
+        /// </param>
+        /// <param name="expectedPercentages">
+        ///     An array of expected percentage values.
+        /// </param>
+        [Theory]
+        [MemberData(nameof(GetPostData))]
+        public async Task Get(int bufferSize, int payloadSize, int minPercentage, int[] expectedPercentages)
         {
-            const int chunkSize = 1024;                 // 1KB
-            const long responseSize = 10 * chunkSize;   // 10KB
-            int[] expectedPercentages = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-
             List<int> actualPercentages = new List<int>();
 
-            ProgressHandler progressHandler = CreateResponseProgressHandler(actualPercentages, chunkSize);
+            ProgressHandler progressHandler = CreateResponseProgressHandler(bufferSize);
+            progressHandler.ResponseStarted.Subscribe(responseStarted =>
+            {
+                responseStarted.Progress.Percentage(minPercentage).Subscribe(progress =>
+                {
+                    Output.WriteLine("{0}% ({1}/{2})", progress.PercentComplete, progress.Current, progress.Total);
+
+                    actualPercentages.Add(progress.PercentComplete);
+                });
+            });
+
             using (HttpClient client = TestServer.CreateClient(progressHandler))
             {
-                using (HttpResponseMessage response = await client.GetAsync($"test/data?length={responseSize}", HttpCompletionOption.ResponseHeadersRead))
+                using (HttpResponseMessage response = await client.GetAsync($"test/data?length={payloadSize}", HttpCompletionOption.ResponseHeadersRead))
                 {
                     foreach (var header in response.Headers)
                     {
@@ -90,7 +109,7 @@ namespace AWTY.Http.IntegrationTests
                     }
 
                     string responseContent = await response.Content.ReadAsStringAsync();
-                    Assert.Equal(responseSize, responseContent.Length);
+                    Assert.Equal(payloadSize, responseContent.Length);
                 }
             }
 
@@ -99,28 +118,47 @@ namespace AWTY.Http.IntegrationTests
         }
 
         /// <summary>
-        ///     Send a 10KB request payload with progress reporting in chunks of 5%.
+        ///     Send a request payload with progress reporting.
         /// </summary>
-        [Fact]
-        public async Task Post_Request_10K_5Percent()
+        /// <param name="bufferSize">
+        ///     The buffer size for transferring data.
+        /// </param>
+        /// <param name="payloadSize">
+        ///     The number of bytes in the payload.
+        /// </param>
+        /// <param name="minPercentage">
+        ///     The minimum change in percentage to capture.
+        /// </param>
+        /// <param name="expectedPercentages">
+        ///     An array of expected percentage values.
+        /// </param>
+        [Theory]
+        [MemberData(nameof(GetPostData))]
+        public async Task Post(int bufferSize, int payloadSize, int minPercentage, int[] expectedPercentages)
         {
-            const int chunkSize = 1024 * 1024;      // 1MB
-            const int requestSize = 50 * chunkSize; // 50MB
-            int[] expectedPercentages = { 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 100 };
-
             List<int> actualPercentages = new List<int>();
 
-            ProgressHandler progressHandler = CreateRequestProgressHandler(actualPercentages, chunkSize);
+            ProgressHandler progressHandler = CreateRequestProgressHandler(bufferSize);
+            progressHandler.RequestStarted.Subscribe(requestStarted =>
+            {
+                requestStarted.Progress.Percentage(5).Subscribe(progress =>
+                {
+                    actualPercentages.Add(progress.PercentComplete);
+
+                    Output.WriteLine("{0}% ({1}/{2})", progress.PercentComplete, progress.Current, progress.Total);
+                });
+            });
+
             using (HttpClient client = TestServer.CreateClient(progressHandler))
             {
                 // Use a streaming request because buffering breaks progress reporting.
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "test/post-data")
                 {
-                    Content = new StreamContent(FillMemoryStream(requestSize))
+                    Content = new StreamContent(FillMemoryStream(payloadSize))
                     {
                         Headers =
                         {
-                            ContentLength = requestSize
+                            ContentLength = payloadSize
                         }
                     }
                 };
@@ -145,7 +183,7 @@ namespace AWTY.Http.IntegrationTests
                     }
 
                     string responseContent = await response.Content.ReadAsStringAsync();
-                    Assert.Equal(requestSize, responseContent.Length);
+                    Assert.Equal(payloadSize, responseContent.Length);
                 }
             }
 
@@ -154,87 +192,64 @@ namespace AWTY.Http.IntegrationTests
         }
 
         /// <summary>
-        ///     Create a <see cref="ProgressHandler"/> for use in tests that publishes progress for requests.
+        ///     Data for the <see cref="Get"/> and <see cref="Post"/> theories.
         /// </summary>
-        /// <param name="actualPercentages">
-        ///     The list of completion percentages to update with captured values.
-        /// </param>
-        /// <param name="bufferSize">
-        ///     The buffer size to use when transferring content.
-        /// </param>
-        /// <returns>
-        ///     The configured <see cref="ProgressHandler"/>.
-        /// </returns>
-        ProgressHandler CreateRequestProgressHandler(List<int> actualPercentages, int bufferSize)
+        public static IEnumerable<object[]> GetPostData
         {
-            if (actualPercentages == null)
-                throw new ArgumentNullException(nameof(actualPercentages));
-
-            ProgressHandler progressHandler = new ProgressHandler(
-                nextHandler: new HttpClientHandler(),
-                progressTypes: HttpProgressTypes.Request,
-                bufferSize: bufferSize
-            );
-            progressHandler.RequestStarted.Subscribe(requestStarted =>
+            get
             {
-                Output.WriteLine("Started sending {0} request for '{1}'...",
-                    requestStarted.RequestMethod,
-                    requestStarted.RequestUri
+                yield return TestData.ProgressHandlerRow(
+                    bufferSize: 1024,
+                    responseSize: 10 * 1024,
+                    minPercentage: 5,
+                    expectedPercentages: new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }
                 );
-                requestStarted.Progress.Percentage(5).Subscribe(progress =>
-                {
-                    actualPercentages.Add(progress.PercentComplete);
 
-                    Output.WriteLine("{0} '{1}' (request {2}% complete)...",
-                        requestStarted.RequestMethod,
-                        requestStarted.RequestUri,
-                        progress.PercentComplete
-                    );
-                });
-            });
-
-            return progressHandler;
+                yield return TestData.ProgressHandlerRow(
+                    bufferSize: 4096,
+                    responseSize: 50 * 1024 * 1024,
+                    minPercentage: 5,
+                    expectedPercentages: new int[] { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 }
+                );
+            }
         }
 
         /// <summary>
         ///     Create a <see cref="ProgressHandler"/> for use in tests that publishes progress for requests.
         /// </summary>
-        /// <param name="actualPercentages">
-        ///     The list of completion percentages to update with captured values.
-        /// </param>
         /// <param name="bufferSize">
         ///     The buffer size to use when transferring content.
         /// </param>
         /// <returns>
         ///     The configured <see cref="ProgressHandler"/>.
         /// </returns>
-        ProgressHandler CreateResponseProgressHandler(List<int> actualPercentages, int bufferSize)
+        ProgressHandler CreateRequestProgressHandler(int bufferSize)
         {
-            if (actualPercentages == null)
-                throw new ArgumentNullException(nameof(actualPercentages));
+            ProgressHandler progressHandler = new ProgressHandler(
+                nextHandler: new HttpClientHandler(),
+                progressTypes: HttpProgressTypes.Request,
+                bufferSize: bufferSize
+            );
 
+            return progressHandler;
+        }
+
+        /// <summary>
+        ///     Create a <see cref="ProgressHandler"/> for use in tests that publishes progress for responses.
+        /// </summary>
+        /// <param name="bufferSize">
+        ///     The buffer size to use when transferring content.
+        /// </param>
+        /// <returns>
+        ///     The configured <see cref="ProgressHandler"/>.
+        /// </returns>
+        ProgressHandler CreateResponseProgressHandler(int bufferSize)
+        {
             ProgressHandler progressHandler = new ProgressHandler(
                 nextHandler: new HttpClientHandler(),
                 progressTypes: HttpProgressTypes.Response,
                 bufferSize: bufferSize
             );
-            progressHandler.ResponseStarted.Subscribe(responseStarted =>
-            {
-                Output.WriteLine("Started receiving {0} response for '{1}'...",
-                    responseStarted.RequestMethod,
-                    responseStarted.RequestUri
-                );
-                responseStarted.Progress.Percentage(5).Subscribe(progress =>
-                {
-                    actualPercentages.Add(progress.PercentComplete);
-
-                    Output.WriteLine("{0} '{1}' (response {2}% complete)...",
-                        responseStarted.RequestMethod,
-                        responseStarted.RequestUri,
-                        progress.PercentComplete
-                    );
-                });
-            });
 
             return progressHandler;
         }
