@@ -64,7 +64,7 @@ namespace AWTY.Http.IntegrationTests
         public async Task Get_Response_10K_5Percent()
         {
             const int chunkSize = 1024;
-            const long responseSize = 10 * 1024;
+            const long responseSize = 10 * chunkSize;
             int[] expectedPercentages = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
 
             List<int> actualPercentages = new List<int>();
@@ -104,9 +104,9 @@ namespace AWTY.Http.IntegrationTests
         [Fact]
         public async Task Post_Request_10K_5Percent()
         {
-            const int chunkSize = 1024;
-            const int requestSize = 10 * chunkSize;
-            int[] expectedPercentages = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+            const int chunkSize = 1024 * 1024;
+            const int requestSize = 50 * chunkSize;
+            int[] expectedPercentages = { 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 100 };
 
             List<int> actualPercentages = new List<int>();
 
