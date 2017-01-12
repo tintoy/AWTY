@@ -141,9 +141,14 @@ namespace AWTY.Http
             using (progressStream)
             using (Stream innerStream = await _innerContent.ReadAsStreamAsync())
             {
-                long total;
-                if (TryComputeLength(out total))
-                    _sink.Total = total;
+                if (!innerStream.CanSeek)
+                {
+                    long total;
+                    if (TryComputeLength(out total))
+                        _sink.Total = total;
+                }
+                else
+                    _sink.Total = innerStream.Length;
 
                 if (_bufferSize.HasValue)
                     await innerStream.CopyToAsync(progressStream, _bufferSize.Value);
