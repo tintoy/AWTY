@@ -56,7 +56,7 @@ namespace AWTY.Http
             _innerContent = innerContent;
             _sink = sink;
 
-            // LoadHeaders();
+            LoadHeaders();
         }
 
         /// <summary>

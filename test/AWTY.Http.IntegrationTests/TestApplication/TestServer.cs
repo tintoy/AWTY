@@ -30,8 +30,6 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         /// </summary>
         public TestServer()
         {
-            Console.WriteLine("TestServer constructor");
-
             Port = 15123;
             BaseAddress = new Uri($"http://localhost:{Port}/");
         }
