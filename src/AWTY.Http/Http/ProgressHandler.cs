@@ -31,14 +31,25 @@ namespace AWTY.Http
         HttpProgressTypes               _progressTypes;
 
         /// <summary>
+        ///     The buffer size to use when transferring content.
+        /// </summary>
+        int?                            _bufferSize;
+
+        /// <summary>
         ///     Create a new <see cref="ProgressHandler"/>.
         /// </summary>
         /// <param name="progressTypes">
         ///     The type(s) of progress that will be reported by the handler.
         /// </param>
-        public ProgressHandler(HttpProgressTypes progressTypes = HttpProgressTypes.Both)
+        /// <param name="bufferSize">
+        ///     An optional buffer size to use when transferring content.
+        /// 
+        ///     If not specified, the default buffer size is used.
+        /// </param>
+        public ProgressHandler(HttpProgressTypes progressTypes = HttpProgressTypes.Both, int? bufferSize = null)
         {
             _progressTypes = progressTypes;
+            _bufferSize = bufferSize;
         }
 
         /// <summary>
@@ -50,10 +61,16 @@ namespace AWTY.Http
         /// <param name="progressTypes">
         ///     The type(s) of progress that will be reported by the handler.
         /// </param>
-        public ProgressHandler(HttpMessageHandler nextHandler, HttpProgressTypes progressTypes = HttpProgressTypes.Both)
+        /// <param name="bufferSize">
+        ///     An optional buffer size to use when transferring content.
+        /// 
+        ///     If not specified, the default buffer size is used.
+        /// </param>
+        public ProgressHandler(HttpMessageHandler nextHandler, HttpProgressTypes progressTypes = HttpProgressTypes.Both, int? bufferSize = null)
             : base(nextHandler)
         {
             _progressTypes = progressTypes;
+            _bufferSize = bufferSize;
         }
 
         /// <summary>
@@ -148,7 +165,7 @@ namespace AWTY.Http
                 if (IsProgressEnabled(HttpProgressTypes.Request))
                 {
                     var sink = new Int64ProgressSink();
-                    request.AddProgress(sink);
+                    request.AddProgress(sink, _bufferSize);
 
                     NotificationSubject.OnNext(new RequestStarted(
                         request.RequestUri,
@@ -165,7 +182,7 @@ namespace AWTY.Http
                 if (IsProgressEnabled(HttpProgressTypes.Response))
                 {
                     var sink = new Int64ProgressSink();
-                    response.AddProgress(sink);
+                    response.AddProgress(sink, _bufferSize);
 
                     NotificationSubject.OnNext(new ResponseStarted(
                         request.RequestUri,

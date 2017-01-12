@@ -31,10 +31,15 @@ namespace AWTY
         /// <param name="progressSink">
         ///     An optional sink that will receive raw progress data.
         /// </param>
+        /// <param name="bufferSize">
+        ///     An optional buffer size to use when transferring content.
+        /// 
+        ///     If not specified, the default buffer size is used.
+        /// </param>
         /// <returns>
         ///     The request message.
         /// </returns>
-        public static HttpRequestMessage AddProgress(this HttpRequestMessage request, IProgressSink<long> progressSink = null)
+        public static HttpRequestMessage AddProgress(this HttpRequestMessage request, IProgressSink<long> progressSink = null, int? bufferSize = null)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -48,7 +53,8 @@ namespace AWTY
 
             request.Content = new ProgressContent(
                 innerContent: request.Content,
-                sink: progressSink ?? new Int64ProgressSink()
+                sink: progressSink ?? new Int64ProgressSink(),
+                bufferSize: bufferSize
             );
             request.SetProgressContextId(ProgressContext.Current.Id);
 
@@ -64,10 +70,15 @@ namespace AWTY
         /// <param name="progressSink">
         ///     An optional sink that will receive raw progress data.
         /// </param>
+        /// <param name="bufferSize">
+        ///     An optional buffer size to use when transferring content.
+        /// 
+        ///     If not specified, the default buffer size is used.
+        /// </param>
         /// <returns>
         ///     The response message.
         /// </returns>
-        public static HttpResponseMessage AddProgress(this HttpResponseMessage response, IProgressSink<long> progressSink = null)
+        public static HttpResponseMessage AddProgress(this HttpResponseMessage response, IProgressSink<long> progressSink = null, int? bufferSize = null)
         {
             if (response == null)
                 throw new ArgumentNullException(nameof(response));
@@ -82,7 +93,8 @@ namespace AWTY
 
             response.Content = new ProgressContent(
                 innerContent: response.Content,
-                sink: progressSink ?? new Int64ProgressSink()
+                sink: progressSink ?? new Int64ProgressSink(),
+                bufferSize: bufferSize
             );
 
             return response;
@@ -97,10 +109,15 @@ namespace AWTY
         /// <param name="sink">
         ///     An optional sink that will receive raw progress data.
         /// </param>
+        /// <param name="bufferSize">
+        ///     An optional buffer size to use when transferring content.
+        /// 
+        ///     If not specified, the default buffer size is used.
+        /// </param>
         /// <returns>
         ///     The response message.
         /// </returns>
-        public static async Task<HttpResponseMessage> WithProgress(this Task<HttpResponseMessage> response, IProgressSink<long> sink)
+        public static async Task<HttpResponseMessage> WithProgress(this Task<HttpResponseMessage> response, IProgressSink<long> sink, int? bufferSize = null)
         {
             if (response == null)
                 throw new ArgumentNullException(nameof(response));
@@ -109,7 +126,7 @@ namespace AWTY
             try
             {
                 responseMessage = await response;
-                responseMessage.AddProgress(sink);
+                responseMessage.AddProgress(sink, bufferSize);
             }
             catch
             {

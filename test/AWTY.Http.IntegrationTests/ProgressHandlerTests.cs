@@ -63,12 +63,13 @@ namespace AWTY.Http.IntegrationTests
         [Fact]
         public async Task Get_Response_10K_5Percent()
         {
+            const int chunkSize = 1024;
             const long responseSize = 10 * 1024;
-            int[] expectedPercentages = { 40, 80, 100 };
+            int[] expectedPercentages = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
 
             List<int> actualPercentages = new List<int>();
 
-            ProgressHandler progressHandler = CreateResponseProgressHandler(actualPercentages);
+            ProgressHandler progressHandler = CreateResponseProgressHandler(actualPercentages, chunkSize);
             using (HttpClient client = TestServer.CreateClient(progressHandler))
             {
                 using (HttpResponseMessage response = await client.GetAsync($"test/data?length={responseSize}", HttpCompletionOption.ResponseHeadersRead))
@@ -109,13 +110,13 @@ namespace AWTY.Http.IntegrationTests
 
             List<int> actualPercentages = new List<int>();
 
-            ProgressHandler progressHandler = CreateRequestProgressHandler(actualPercentages);
+            ProgressHandler progressHandler = CreateRequestProgressHandler(actualPercentages, chunkSize);
             using (HttpClient client = TestServer.CreateClient(progressHandler))
             {
                 // Use a streaming request because buffering breaks progress reporting.
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "test/post-data")
                 {
-                    Content = CreateStreamingRequestContent(requestSize, chunkSize),
+                    Content = new StreamContent(FillMemoryStream(requestSize)),
                     Headers =
                     {
                         TransferEncodingChunked = true
@@ -156,17 +157,21 @@ namespace AWTY.Http.IntegrationTests
         /// <param name="actualPercentages">
         ///     The list of completion percentages to update with captured values.
         /// </param>
+        /// <param name="bufferSize">
+        ///     The buffer size to use when transferring content.
+        /// </param>
         /// <returns>
         ///     The configured <see cref="ProgressHandler"/>.
         /// </returns>
-        ProgressHandler CreateRequestProgressHandler(List<int> actualPercentages)
+        ProgressHandler CreateRequestProgressHandler(List<int> actualPercentages, int bufferSize)
         {
             if (actualPercentages == null)
                 throw new ArgumentNullException(nameof(actualPercentages));
 
             ProgressHandler progressHandler = new ProgressHandler(
                 nextHandler: new HttpClientHandler(),
-                progressTypes: HttpProgressTypes.Request
+                progressTypes: HttpProgressTypes.Request,
+                bufferSize: bufferSize
             );
             progressHandler.RequestStarted.Subscribe(requestStarted =>
             {
@@ -195,17 +200,21 @@ namespace AWTY.Http.IntegrationTests
         /// <param name="actualPercentages">
         ///     The list of completion percentages to update with captured values.
         /// </param>
+        /// <param name="bufferSize">
+        ///     The buffer size to use when transferring content.
+        /// </param>
         /// <returns>
         ///     The configured <see cref="ProgressHandler"/>.
         /// </returns>
-        ProgressHandler CreateResponseProgressHandler(List<int> actualPercentages)
+        ProgressHandler CreateResponseProgressHandler(List<int> actualPercentages, int bufferSize)
         {
             if (actualPercentages == null)
                 throw new ArgumentNullException(nameof(actualPercentages));
 
             ProgressHandler progressHandler = new ProgressHandler(
                 nextHandler: new HttpClientHandler(),
-                progressTypes: HttpProgressTypes.Response
+                progressTypes: HttpProgressTypes.Response,
+                bufferSize: bufferSize
             );
             progressHandler.ResponseStarted.Subscribe(responseStarted =>
             {
@@ -226,27 +235,6 @@ namespace AWTY.Http.IntegrationTests
             });
 
             return progressHandler;
-        }
-
-        /// <summary>
-        ///     Create <see cref="HttpContent"/> that always streams its data (never buffers).
-        /// </summary>
-        /// <param name="size">
-        ///     The number of UTF-8 characters in the content.
-        /// </param>
-        /// <param name="chunkSize">
-        ///     The size of each chunk of data that the content will write when streaming.
-        /// </param>
-        /// <returns>
-        ///     The configured <see cref="HttpContent"/>.
-        /// </returns>
-        HttpContent CreateStreamingRequestContent(int size, int chunkSize)
-        {
-            return new StreamingRequestContent(
-                FillMemoryStream(size),
-                size,
-                chunkSize
-            );
         }
 
         /// <summary>

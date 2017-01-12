@@ -21,6 +21,11 @@ namespace AWTY.Http
         HttpContent                         _innerContent;
 
         /// <summary>
+        ///     The buffer size to use when transferring the inner content.
+        /// </summary>
+        int?                               _bufferSize;
+
+        /// <summary>
         ///     The sink which will receive raw progress data.
         /// </summary>
         IProgressSink<long>                _sink;
@@ -42,10 +47,43 @@ namespace AWTY.Http
         /// <param name="innerContent">
         ///     The inner <see cref="HttpContent"/>.
         /// </param>
+        /// <param name="bufferSize">
+        ///     The buffer size to use when transferring the inner content.
+        /// </param>
+        public ProgressContent(HttpContent innerContent, int bufferSize)
+            : this(innerContent, bufferSize, new Int64ProgressSink())
+        {
+        }
+
+        /// <summary>
+        ///     Create new progress content.
+        /// </summary>
+        /// <param name="innerContent">
+        ///     The inner <see cref="HttpContent"/>.
+        /// </param>
         /// <param name="sink">
         ///     The sink which will receive raw progress data.
         /// </param>
         public ProgressContent(HttpContent innerContent, IProgressSink<long> sink)
+            : this(innerContent, null, sink)
+        {
+        }
+
+        /// <summary>
+        ///     Create new progress content.
+        /// </summary>
+        /// <param name="innerContent">
+        ///     The inner <see cref="HttpContent"/>.
+        /// </param>
+        /// <param name="bufferSize">
+        ///     An optional buffer size to use when transferring the inner content.
+        /// 
+        ///     Pass <c>null</c> to use the default buffer size.
+        /// </param>
+        /// <param name="sink">
+        ///     The sink which will receive raw progress data.
+        /// </param>
+        public ProgressContent(HttpContent innerContent, int? bufferSize, IProgressSink<long> sink)
         {
             if (innerContent == null)
                 throw new ArgumentNullException(nameof(innerContent));
@@ -54,6 +92,7 @@ namespace AWTY.Http
                 throw new ArgumentNullException(nameof(sink));
 
             _innerContent = innerContent;
+            _bufferSize = bufferSize;
             _sink = sink;
 
             LoadHeaders();
@@ -100,12 +139,16 @@ namespace AWTY.Http
                 sink: _sink
             );
             using (progressStream)
+            using (Stream innerStream = await _innerContent.ReadAsStreamAsync())
             {
                 long total;
                 if (TryComputeLength(out total))
                     _sink.Total = total;
 
-                await _innerContent.CopyToAsync(progressStream);
+                if (_bufferSize.HasValue)
+                    await innerStream.CopyToAsync(progressStream, _bufferSize.Value);
+                else
+                    await innerStream.CopyToAsync(progressStream);
             }
         }
 
