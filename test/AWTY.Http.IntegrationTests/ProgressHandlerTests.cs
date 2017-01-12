@@ -152,7 +152,7 @@ namespace AWTY.Http.IntegrationTests
             using (HttpClient client = TestServer.CreateClient(progressHandler))
             {
                 // Use a streaming request because buffering breaks progress reporting.
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "test/post-data")
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "test/echo")
                 {
                     Content = new StreamContent(FillMemoryStream(payloadSize))
                     {

@@ -49,7 +49,7 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         }
 
         /// <summary>
-        ///     Return plain-text data.
+        ///     Return plain-text data supplied in the request body.
         /// </summary>
         /// <param name="length">
         ///     The number of unicode characters to return.
@@ -57,10 +57,10 @@ namespace AWTY.Http.IntegrationTests.TestApplication
         /// <returns>
         ///     The action result.
         /// </returns>
-        [HttpPost, Route("post-data")]
-        public async Task<IActionResult> PostData()
+        [HttpPost, Route("echo")]
+        public async Task<IActionResult> Echo()
         {
-            _logger.LogInformation("Got request!");
+            _logger.LogInformation("Received request.");
 
             foreach (var header in Request.Headers)
             {
