@@ -17,7 +17,7 @@ namespace ConsoleDownloader
         public static void Main()
         {
             Console.WriteLine("Downloading...");
-            ConsoleProgressBar progressBar = new ConsoleProgressBar("Progress");
+            ConsoleProgressBar progressBar = new ConsoleProgressBar("Download");
 
             // Quick-and-dirty demo to simulate progress so we can drive the ConsoleProgressBar.
             // TODO: Download file and use that progress instead.

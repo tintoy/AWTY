@@ -18,7 +18,7 @@ namespace ConsoleDownloader
         /// <summary>
         ///     The starting column of the bar.
         /// </summary>
-        const int BarStart = MaxTitleChars + 2; // = ": "
+        const int BarStart = MaxTitleChars + 3; // = ": ["
 
         /// <summary>
         ///     The size, in characters, of the bar.
@@ -101,11 +101,11 @@ namespace ConsoleDownloader
         /// </param>
         void IObserver<ProgressData<long>>.OnNext(ProgressData<long> value)
         {
-            using (Position(_line, MaxTitleChars + 3))
+            using (Position(_line, BarStart))
             {
                 Console.Write(new String('#', value.PercentComplete / 2));
             }
-            using (Position(_line, MaxTitleChars + 56))
+            using (Position(_line, PercentageStart))
             {
                 Console.Write("{0}%", value.PercentComplete);
             }
@@ -116,7 +116,7 @@ namespace ConsoleDownloader
         /// </summary>
         void IObserver<ProgressData<long>>.OnCompleted()
         {
-            using (Position(_line, BarStart))
+            using (Position(_line, BarStart - 1 /* Overwrite "[" */))
             {
                 Console.Write("Complete.".PadRight(PercentageEnd - BarStart));
             }
