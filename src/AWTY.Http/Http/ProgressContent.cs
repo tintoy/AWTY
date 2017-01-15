@@ -37,7 +37,7 @@ namespace AWTY.Http
         ///     The inner <see cref="HttpContent"/>.
         /// </param>
         public ProgressContent(HttpContent innerContent)
-            : this(innerContent, new Int64ProgressSink())
+            : this(innerContent, DefaultSink.Int64())
         {
         }
 
@@ -51,7 +51,7 @@ namespace AWTY.Http
         ///     The buffer size to use when transferring the inner content.
         /// </param>
         public ProgressContent(HttpContent innerContent, int bufferSize)
-            : this(innerContent, bufferSize, new Int64ProgressSink())
+            : this(innerContent, bufferSize, DefaultSink.Int64())
         {
         }
 

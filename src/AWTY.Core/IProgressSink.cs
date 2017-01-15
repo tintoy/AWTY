@@ -8,6 +8,9 @@ namespace AWTY
     /// <typeparam name="TValue">
     ///     The type of value used to represent progress.
     /// </typeparam>
+    /// <remarks>
+    ///     Progress sinks should not propagate values with a <see cref="RawProgressData{TValue}.Total"/> of less than 1.
+    /// </remarks>
     public interface IProgressSink<TValue>
         : IObservable<RawProgressData<TValue>>
         where TValue : IEquatable<TValue>, IComparable<TValue>

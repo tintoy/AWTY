@@ -11,6 +11,11 @@ namespace AWTY.Core.Sinks
         : IProgressSink<int>, IDisposable
     {
         /// <summary>
+        ///     The default total for <see cref="Int32ProgressSink"/>s.
+        /// </summary>
+        public const int DefaultTotal = 100;
+
+        /// <summary>
         ///     The subject used to publish raw progress data.
         /// </summary>
         readonly Subject<RawProgressData<int>>   _rawDataSubject = new Subject<RawProgressData<int>>();
@@ -26,10 +31,10 @@ namespace AWTY.Core.Sinks
         int                                      _total;
 
         /// <summary>
-        ///     Create a new <see cref="Int32ProgressSink"/> with a <see cref="Total"/> of 100.
+        ///     Create a new <see cref="Int32ProgressSink"/> with the default <see cref="Total"/> (<see cref="DefaultTotal"/>).
         /// </summary>
         public Int32ProgressSink()
-            : this(initialTotal: 100)
+            : this(initialTotal: DefaultTotal)
         {
         }
 
@@ -187,8 +192,8 @@ namespace AWTY.Core.Sinks
             _rawDataSubject.OnNext(
                 RawProgressData.Create(current, total)
             );
-            if (current == total) // AF: Do we want to make this behaviour optional?
-                _rawDataSubject.OnCompleted();
+            
+            // AF: Do we want to (optionally) call OnCompleted when current >= total?
         }
     }
 }

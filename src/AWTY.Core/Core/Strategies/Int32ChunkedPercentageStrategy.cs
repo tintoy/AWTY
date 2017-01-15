@@ -43,6 +43,11 @@ namespace AWTY.Core.Strategies
         public int ChunkSize => _chunkSize;
 
         /// <summary>
+        ///     The progress value equivalent to 0.
+        /// </summary>
+        protected override int Zero => 0;
+
+        /// <summary>
         ///     Report the current progress.
         /// </summary>
         /// <param name="current">

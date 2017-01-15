@@ -164,7 +164,7 @@ namespace AWTY.Http
 
                 if (IsProgressEnabled(HttpProgressTypes.Request))
                 {
-                    var sink = new Int64ProgressSink();
+                    IProgressSink<long> sink = DefaultSink.Int64();
                     request.AddProgress(sink, _bufferSize);
 
                     NotificationSubject.OnNext(new RequestStarted(
@@ -181,7 +181,7 @@ namespace AWTY.Http
 
                 if (IsProgressEnabled(HttpProgressTypes.Response))
                 {
-                    var sink = new Int64ProgressSink();
+                    IProgressSink<long> sink = DefaultSink.Int64();
                     response.AddProgress(sink, _bufferSize);
 
                     NotificationSubject.OnNext(new ResponseStarted(

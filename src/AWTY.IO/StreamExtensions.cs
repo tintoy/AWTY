@@ -3,7 +3,6 @@ using System.IO;
 
 namespace AWTY
 {
-    using Core.Sinks;
     using IO;
 
     /// <summary>
@@ -40,7 +39,7 @@ namespace AWTY
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            Int64ProgressSink sink = new Int64ProgressSink();
+            IProgressSink<long> sink = DefaultSink.Int64();
             if (total.HasValue)
                 sink.Total = total.Value;
             else if (stream.CanSeek)
@@ -80,7 +79,7 @@ namespace AWTY
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            Int64ProgressSink sink = new Int64ProgressSink(total);
+            IProgressSink<long> sink = DefaultSink.Int64();
             if (progressObserver != null)
                 sink.Subscribe(progressObserver);
 

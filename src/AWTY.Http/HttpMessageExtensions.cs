@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 namespace AWTY
 {
-    using Core.Sinks;
     using Http;
 
     // TODO:
@@ -53,7 +52,7 @@ namespace AWTY
 
             request.Content = new ProgressContent(
                 innerContent: request.Content,
-                sink: progressSink ?? new Int64ProgressSink(),
+                sink: progressSink ?? DefaultSink.Int64(),
                 bufferSize: bufferSize
             );
             request.SetProgressContextId(ProgressContext.Current.Id);
@@ -93,7 +92,7 @@ namespace AWTY
 
             response.Content = new ProgressContent(
                 innerContent: response.Content,
-                sink: progressSink ?? new Int64ProgressSink(),
+                sink: progressSink ?? DefaultSink.Int64(),
                 bufferSize: bufferSize
             );
 

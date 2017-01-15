@@ -6,6 +6,10 @@ namespace AWTY.Core.Strategies
     /// <summary>
     ///     The base class for progress-notification strategies.
     /// </summary>
+    /// <remarks>
+    ///     Does not propagate values where <see cref="RawProgressData{TValue}.Total"/> is 0.
+    ///     Instead, these will be propagated to subscribers via OnError(ArgumentException).
+    /// </remarks>
     public abstract class ProgressStrategy<TValue>
         : IObserver<RawProgressData<TValue>>, IObservable<ProgressData<TValue>>, IDisposable
         where TValue : IEquatable<TValue>, IComparable<TValue>
@@ -49,6 +53,11 @@ namespace AWTY.Core.Strategies
             if (disposing)
                 _progressDataSubject.Dispose();
         }
+
+        /// <summary>
+        ///     The <typeparamref name="TValue"/> progress value equivalent to 0.
+        /// </summary>
+        protected abstract TValue Zero { get; }
 
         /// <summary>
         ///     Report the current progress.
@@ -102,6 +111,15 @@ namespace AWTY.Core.Strategies
         /// </param>
         void IObserver<RawProgressData<TValue>>.OnNext(RawProgressData<TValue> value)
         {
+            if (value.Total.Equals(Zero))
+            {
+                _progressDataSubject.OnError(new ArgumentException(
+                    message: "Invalid raw progress data (total cannot be 0)."
+                ));
+
+                return;
+            }
+
             ReportProgress(value.Current, value.Total);
         }
 

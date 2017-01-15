@@ -58,10 +58,14 @@ namespace AWTY.IO
         ///     Should the <see cref="ProgressStream"/> close the inner stream when it is closed?
         /// </param>
         public ProgressStream(Stream innerStream, StreamDirection streamDirection, bool ownsStream)
-            : this(innerStream, streamDirection, ownsStream, new Int64ProgressSink())
+            : this(innerStream, streamDirection, ownsStream, DefaultSink.Int64())
         {
             if (_innerStream.CanSeek)
-                _sink.Total = _innerStream.Length; // AF: What about position?
+            {
+                _sink.Total = _innerStream.Length;
+
+                // AF: What about position?
+            }
         }
 
         /// <summary>
