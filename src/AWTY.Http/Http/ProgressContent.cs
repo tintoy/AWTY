@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace AWTY.Http
 {
-    using Core.Sinks;
     using IO;
 
     /// <summary>

@@ -7,9 +7,9 @@
         "keyFile": "../../AWTY.snk"
     },
     "packOptions": {
-        "title": "AWTY.IO",
-        "summary": "Are we there yet (I/O)",
-        "description": "Are we there yet? Add progress reporting to System.IO.",
+        "title": "AWTY.Core",
+        "summary": "Are we there yet (logging)",
+        "description": "Are we there yet? Add send progress reports to Microsoft.Extensions.Logging.",
         "authors": [
             "tintoy@tintoy.io"
         ],
@@ -20,7 +20,7 @@
         "tags": [
             "AWTY",
             "Progress",
-            "IO"
+            "Logging"
         ],
         "projectUrl": "https://github.com/tintoy/AWTY/",
         "repository": {
@@ -34,7 +34,7 @@
     },
     "dependencies": {
         "AWTY.Core": "1.0.0-*",
-        "System.Reactive": "3.1.1"
+        "Microsoft.Extensions.Logging": "1.0.0"
     },
     "frameworks": {
         "netstandard1.6": {

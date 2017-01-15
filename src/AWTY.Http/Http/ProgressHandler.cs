@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 namespace AWTY.Http
 {
-    using Core.Sinks;
-
     /// <summary>
     ///     An HTTP message handler that enables progress reporting for requests and responses.
     /// </summary>

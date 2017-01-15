@@ -3,8 +3,6 @@ using System.IO;
 
 namespace AWTY.IO
 {
-    using Core.Sinks;
-
     /// <summary>
     ///     A <see cref="Stream"/> that wraps an inner <see cref="Stream"/>, adding progress reporting.
     /// </summary>
