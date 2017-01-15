@@ -133,7 +133,6 @@ namespace ConsoleDownloader
             using (Position(_line, 0))
             using (Color(ConsoleColor.Red))
             {
-                Console.SetCursorPosition(left: 0, top: _line);
                 Console.Write(error.Message);
             }
         }
