@@ -54,5 +54,65 @@ namespace AWTY
 
             return strategy;
         }
+
+        /// <summary>
+        ///     Subscribe an <see cref="IProgress{TValue}"/> to detailed progress notifications.
+        /// </summary>
+        /// <param name="source">
+        ///     The sequence of progress notifications.
+        /// </param>
+        /// <param name="progress">
+        ///     The <see cref="IProgress{TValue}"/>.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="IDisposable"/> representing the subscription.
+        /// </returns>
+        public static IDisposable Subscribe<TValue>(this IObservable<ProgressData<TValue>> source, IProgress<ProgressData<TValue>> progress)
+            where TValue : IEquatable<TValue>, IComparable<TValue>
+        {
+            return source.Subscribe(
+                progressData => progress.Report(progressData)
+            );
+        }
+
+        /// <summary>
+        ///     Subscribe an <see cref="IProgress{TValue}"/> to basic progress notifications.
+        /// </summary>
+        /// <param name="source">
+        ///     The sequence of progress notifications.
+        /// </param>
+        /// <param name="progress">
+        ///     The <see cref="IProgress{TValue}"/>.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="IDisposable"/> representing the subscription.
+        /// </returns>
+        public static IDisposable Subscribe<TValue>(this IObservable<ProgressData<TValue>> source, IProgress<ProgressData> progress)
+            where TValue : IEquatable<TValue>, IComparable<TValue>
+        {
+            return source.Subscribe(
+                progressData => progress.Report(progressData)
+            );
+        }
+
+        /// <summary>
+        ///     Subscribe an <see cref="IProgress{TValue}"/> to progress value notifications.
+        /// </summary>
+        /// <param name="source">
+        ///     The sequence of progress notifications.
+        /// </param>
+        /// <param name="progress">
+        ///     The <see cref="IProgress{TValue}"/>.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="IDisposable"/> representing the subscription.
+        /// </returns>
+        public static IDisposable Subscribe<TValue>(this IObservable<ProgressData<TValue>> source, IProgress<TValue> progress)
+            where TValue : IEquatable<TValue>, IComparable<TValue>
+        {
+            return source.Subscribe(
+                progressData => progress.Report(progressData.Current)
+            );
+        }
     }
 }
