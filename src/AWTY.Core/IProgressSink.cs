@@ -18,7 +18,7 @@ namespace AWTY
         /// <summary>
         ///     The current progress value.
         /// </summary>
-        TValue Current { get; }
+        TValue Current { get; set; }
 
         /// <summary>
         ///     The total value against which progress is measured.
@@ -43,14 +43,6 @@ namespace AWTY
         ///     The updated progress value.
         /// </returns>
         TValue Subtract(TValue value);
-
-        /// <summary>
-        ///     Set the current progress value.
-        /// </summary>
-        /// <param name="current">
-        ///     The current progress value.
-        /// </param>
-        void SetCurrent(TValue current);
 
         /// <summary>
         ///     Reset the current progress value to 0.

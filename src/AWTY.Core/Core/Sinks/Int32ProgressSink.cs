@@ -84,7 +84,20 @@ namespace AWTY.Core.Sinks
         /// <summary>
         ///     The current progress value.
         /// </summary>
-        public int Current => _current;
+        public int Current
+        {
+            get
+            {
+                return _current;
+            }
+            set
+            {
+                int total = _total;
+
+                _current = value;
+                PublishRawData(value, total);
+            }
+        }
 
         /// <summary>
         ///     The total value against which progress is measured.
@@ -139,19 +152,6 @@ namespace AWTY.Core.Sinks
             PublishRawData(current, total);
 
             return current;
-        }
-
-        /// <summary>
-        ///     Set the current progress value.
-        /// </summary>
-        /// <param name="current">
-        ///     The current progress value.
-        /// </param>
-        public void SetCurrent(int current)
-        {
-            int total = _total;
-            _current = current;
-            PublishRawData(current, total);
         }
 
         /// <summary>
