@@ -218,5 +218,22 @@ namespace AWTY.Http
         {
             return (_progressTypes & progressType) == progressType;
         }
+
+        /// <summary>
+        ///     Create a new <see cref="ProgressHandler"/> linked to an <see cref="HttpClientHandler"/>.
+        /// </summary>
+        /// <param name="progressTypes">
+        ///     The types of progress to report.
+        /// </param>
+        /// <param name="bufferSize">
+        ///     The buffer size to use when copying data.
+        /// </param>
+        /// <returns>
+        ///     The configured <see cref="ProgressHandler"/>.
+        /// </returns>
+        public static ProgressHandler Create(HttpProgressTypes progressTypes = HttpProgressTypes.Both, int? bufferSize = null)
+        {
+            return new ProgressHandler(new HttpClientHandler(), progressTypes, bufferSize);
+        }
     }
 }
