@@ -16,33 +16,40 @@ namespace ConsoleDownloader
     public static class Program
     {
         /// <summary>
+        ///     Buffer size to use when transferring data.
+        /// </summary>
+        const int BufferSize = 524288;
+
+        /// <summary>
         ///     The asynchronous program entry-point.
         /// </summary>
         static async Task AsyncMain()
         {
-            Uri targetUrl = new Uri("http://www.foo.com/bar.txt");
+            Uri targetUrl = new Uri("http://web4host.net/5MB.zip");
             string targetFileName = Path.GetFileName(targetUrl.LocalPath);
 
-            Console.WriteLine("Downloading '{0}'...", targetUrl);
-
             ProgressHandler progressHandler = ProgressHandler.Create(
-                progressTypes: HttpProgressTypes.Request,
-                bufferSize: 4096
+                progressTypes: HttpProgressTypes.Response,
+                bufferSize: BufferSize
             );
-            progressHandler.RequestStarted.Subscribe(requestStarted =>
+            progressHandler.ResponseStarted.Subscribe(requestStarted =>
             {
+                Console.WriteLine("Downloading '{0}'...", targetUrl);
+
                 ConsoleProgressBar progressBar = new ConsoleProgressBar(targetFileName);
-                requestStarted.Progress.Percentage(10).Subscribe(progressBar);
+                requestStarted.Progress.Percentage(5).Subscribe(progressBar);
             });
 
-            // AF: Why is this retrying the request when it fails (duplicate progress bars because progressHandler.RequestStarted is called twice)?
+            string targetFilePath = Path.Combine(
+                Directory.GetCurrentDirectory(), targetFileName
+            );
             using (HttpClient client = new HttpClient(progressHandler))
-            using (FileStream targetStream = new FileStream(targetFileName, FileMode.Create))
+            using (FileStream targetStream = new FileStream(targetFilePath, FileMode.Create))
             using (HttpResponseMessage response = await client.GetAsync(targetUrl, HttpCompletionOption.ResponseHeadersRead))
             {
                 using (Stream responseStream = await response.Content.ReadAsStreamAsync())
                 {
-                    responseStream.CopyTo(targetStream, 4096);
+                    await responseStream.CopyToAsync(targetStream, BufferSize);
                 }
             }
 
@@ -85,7 +92,7 @@ namespace ConsoleDownloader
 
             try
             {
-                AsyncMain().Wait();
+                task.Wait();
             }
             catch (AggregateException asyncMainError)
             {

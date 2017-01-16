@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace AWTY
@@ -97,6 +98,76 @@ namespace AWTY
             );
 
             return response;
+        }
+
+        /// <summary>
+        ///     Get the response's sequence of raw progress data.
+        /// </summary>
+        /// <param name="response">
+        ///     The HTTP response message.
+        /// </param>
+        /// <returns>
+        ///     An observable sequence of raw progress data.
+        /// </returns>
+        public static IObservable<RawProgressData<long>> GetProgress(this HttpResponseMessage response)
+        {
+            if (response == null)
+                throw new ArgumentNullException(nameof(response));
+
+            ProgressContent progressContent = response.Content as ProgressContent;
+            if (progressContent == null)
+                return null;
+
+            return progressContent.Progress;
+        }
+
+        /// <summary>
+        ///     Get the response's sequence of raw progress data, or a default (empty) sequence.
+        /// </summary>
+        /// <param name="response">
+        ///     The HTTP response message.
+        /// </param>
+        /// <returns>
+        ///     An observable sequence of raw progress data.
+        /// </returns>
+        public static IObservable<RawProgressData<long>> GetProgressOrDefault(this HttpResponseMessage response)
+        {
+            return response.GetProgress() ?? Observable.Never<RawProgressData<long>>();
+        }
+
+        /// <summary>
+        ///     Get the request's sequence of raw progress data.
+        /// </summary>
+        /// <param name="request">
+        ///     The HTTP request message.
+        /// </param>
+        /// <returns>
+        ///     An observable sequence of raw progress data.
+        /// </returns>
+        public static IObservable<RawProgressData<long>> GetProgress(this HttpRequestMessage request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            ProgressContent progressContent = request.Content as ProgressContent;
+            if (progressContent == null)
+                return null;
+
+            return progressContent.Progress;
+        }
+
+        /// <summary>
+        ///     Get the request's sequence of raw progress data, or a default (empty) sequence.
+        /// </summary>
+        /// <param name="request">
+        ///     The HTTP request message.
+        /// </param>
+        /// <returns>
+        ///     An observable sequence of raw progress data.
+        /// </returns>
+        public static IObservable<RawProgressData<long>> GetProgressOrDefault(this HttpRequestMessage request)
+        {
+            return request.GetProgress() ?? Observable.Never<RawProgressData<long>>();
         }
 
         /// <summary>

@@ -162,14 +162,13 @@ namespace AWTY.Http
 
                 if (IsProgressEnabled(HttpProgressTypes.Request))
                 {
-                    IProgressSink<long> sink = DefaultSink.Int64();
-                    request.AddProgress(sink, _bufferSize);
+                    request.AddProgress(bufferSize: _bufferSize);
 
                     NotificationSubject.OnNext(new RequestStarted(
                         request.RequestUri,
                         request.Method.Method,
                         progressContextId,
-                        progress: sink
+                        progress: request.GetProgress()
                     ));
 
                     cancellationToken.ThrowIfCancellationRequested();
@@ -179,14 +178,13 @@ namespace AWTY.Http
 
                 if (IsProgressEnabled(HttpProgressTypes.Response))
                 {
-                    IProgressSink<long> sink = DefaultSink.Int64();
-                    response.AddProgress(sink, _bufferSize);
+                    response.AddProgress(bufferSize: _bufferSize);
 
                     NotificationSubject.OnNext(new ResponseStarted(
                         request.RequestUri,
                         request.Method.Method,
                         progressContextId,
-                        progress: sink
+                        progress: response.GetProgress()
                     ));
 
                     cancellationToken.ThrowIfCancellationRequested();
