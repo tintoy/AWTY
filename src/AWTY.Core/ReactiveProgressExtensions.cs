@@ -56,6 +56,25 @@ namespace AWTY
         }
 
         /// <summary>
+        ///     Subscribe an <see cref="IProgress{TValue}"/> to progress percentage-completion notifications.
+        /// </summary>
+        /// <param name="source">
+        ///     The sequence of progress notifications.
+        /// </param>
+        /// <param name="progress">
+        ///     The <see cref="IProgress{TValue}"/>.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="IDisposable"/> representing the subscription.
+        /// </returns>
+        public static IDisposable SubscribePercentComplete(this IObservable<ProgressData> source, IProgress<int> progress)
+        {
+            return source.Subscribe(
+                progressData => progress.Report(progressData.PercentComplete)
+            );
+        }
+
+        /// <summary>
         ///     Subscribe an <see cref="IProgress{TValue}"/> to detailed progress notifications.
         /// </summary>
         /// <param name="source">
